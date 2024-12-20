@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "761021477345",
+    "project_id": "onlinesales-8a7fb",
+    "storage_bucket": "onlinesales-8a7fb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:761021477345:android:87a19c484728341f3c62a0",
+        "android_client_info": {
+          "package_name": "com.nureddinelmas.onlinesales"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3nmDT44ic5MMmGakf_VBz0G0MSCJKyQk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
