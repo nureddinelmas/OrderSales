@@ -1,13 +1,10 @@
 package com.nureddinelmas.onlinesales.viewModel
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.firestore.DocumentId
 import com.nureddinelmas.onlinesales.models.Order
-import com.nureddinelmas.onlinesales.OrderRepository
+import com.nureddinelmas.onlinesales.repository.Repository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,7 +16,7 @@ data class OrderUiState(
 	val error: String? = null
 )
 
-class OrderViewModel(private val orderRepository: OrderRepository) : ViewModel() {
+class OrderViewModel(private val repository: Repository) : ViewModel() {
 	private val _uiState = MutableStateFlow(OrderUiState())
 	val uiState: StateFlow<OrderUiState> = _uiState.asStateFlow()
 	
@@ -30,7 +27,7 @@ class OrderViewModel(private val orderRepository: OrderRepository) : ViewModel()
 	private fun loadOrders() {
 		viewModelScope.launch {
 			_uiState.value = OrderUiState(isLoading = true)
-			orderRepository.getOrders()
+			repository.getOrders()
 				.onSuccess { orders ->
 					_uiState.value = OrderUiState(orders = orders)
 					
@@ -44,10 +41,9 @@ class OrderViewModel(private val orderRepository: OrderRepository) : ViewModel()
 		}
 	}
 	
-	
 	fun addOrder(order: Order) {
 		viewModelScope.launch {
-			orderRepository.addOrder(order)
+			repository.addOrder(order)
 				.onSuccess {
 					Log.d("!!!", "OK added orders")
 					loadOrders()
@@ -61,10 +57,11 @@ class OrderViewModel(private val orderRepository: OrderRepository) : ViewModel()
 				}
 		}
 	}
+
 	
 	fun deleteOrder(orderId: String) {
 		viewModelScope.launch {
-			orderRepository.deleteOrder(orderId)
+			repository.deleteOrder(orderId)
 				.onSuccess {
 					loadOrders()
 					Log.d("!!!", "OK deleted orders")

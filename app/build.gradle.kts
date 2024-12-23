@@ -65,7 +65,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(platform(libs.firebase.bom))
     implementation (libs.androidx.navigation.compose)
-    implementation("com.google.firebase:firebase-firestore")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
-    implementation("androidx.compose.runtime:runtime-livedata:1.7.6")
+    implementation(libs.google.firebase.firestore)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.runtime.livedata)
+    implementation (libs.gson)
 }
