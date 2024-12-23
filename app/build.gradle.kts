@@ -55,7 +55,8 @@ dependencies {
     implementation(libs.firebase.common.ktx)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.database)
-    testImplementation(libs.junit)
+	implementation(libs.androidx.storage)
+	testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -66,5 +67,5 @@ dependencies {
     implementation (libs.androidx.navigation.compose)
     implementation("com.google.firebase:firebase-firestore")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
-
+    implementation("androidx.compose.runtime:runtime-livedata:1.7.6")
 }

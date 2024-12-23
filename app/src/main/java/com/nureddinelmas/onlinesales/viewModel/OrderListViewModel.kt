@@ -1,56 +1,78 @@
 package com.nureddinelmas.onlinesales.viewModel
 
-import androidx.activity.result.launch
-import androidx.compose.runtime.Recomposer
+import android.util.Log
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.DocumentId
 import com.nureddinelmas.onlinesales.models.Order
-import com.nureddinelmas.onlinesales.ui.theme.OrderRepository
-import androidx.compose.runtime.State
-import kotlinx.coroutines.launch
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import kotlinx.coroutines.flow.MutableSharedFlow
+import com.nureddinelmas.onlinesales.OrderRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class OrderListViewModel : ViewModel() {
-    private val orderRepository = OrderRepository()
-    private val _orders = MutableStateFlow<List<Order>>(emptyList())
-    val orders: StateFlow<List<Order>> = _orders.asStateFlow()
+data class OrderUiState(
+	val isLoading: Boolean = false,
+	val orders: List<Order> = emptyList(),
+	val error: String? = null
+)
 
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
-    private val _errorMessage = MutableSharedFlow<String?>()
-    val errorMessage: SharedFlow<String?> = _errorMessage.asSharedFlow()
-
-
-    init {
-        loadOrders()
-    }
-
-    private fun loadOrders() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            runCatching { orderRepository.getOrders() }
-                .onSuccess { _orders.value = it.getOrDefault(emptyList()) }
-                .onFailure { _errorMessage.emit(it.message) }
-            _isLoading.value = false
-        }
-    }
-
-
-    fun addOrder(order: Order) {
-        viewModelScope.launch {
-            runCatching { orderRepository.addOrder(order) }
-                .onSuccess { loadOrders() }
-                .onFailure { _errorMessage.emit(it.message) }
-        }
-    }
+class OrderViewModel(private val orderRepository: OrderRepository) : ViewModel() {
+	private val _uiState = MutableStateFlow(OrderUiState())
+	val uiState: StateFlow<OrderUiState> = _uiState.asStateFlow()
+	
+	init {
+		loadOrders()
+	}
+	
+	private fun loadOrders() {
+		viewModelScope.launch {
+			_uiState.value = OrderUiState(isLoading = true)
+			orderRepository.getOrders()
+				.onSuccess { orders ->
+					_uiState.value = OrderUiState(orders = orders)
+					
+				}
+				.onFailure { throwable ->
+					_uiState.value = OrderUiState(
+						error =
+						throwable.message ?: "Unknown error"
+					)
+				}
+		}
+	}
+	
+	
+	fun addOrder(order: Order) {
+		viewModelScope.launch {
+			orderRepository.addOrder(order)
+				.onSuccess {
+					Log.d("!!!", "OK added orders")
+					loadOrders()
+				}
+				.onFailure { throwable ->
+					Log.d("!!!", "NOT OK! Faiulre")
+					_uiState.value = OrderUiState(
+						error =
+						throwable.message ?: "Error adding order"
+					)
+				}
+		}
+	}
+	
+	fun deleteOrder(orderId: String) {
+		viewModelScope.launch {
+			orderRepository.deleteOrder(orderId)
+				.onSuccess {
+					loadOrders()
+					Log.d("!!!", "OK deleted orders")
+				}
+				.onFailure { throwable ->
+					_uiState.value =
+						OrderUiState(error = throwable.message ?: "Error deleting order")
+				}
+		}
+	}
 }
