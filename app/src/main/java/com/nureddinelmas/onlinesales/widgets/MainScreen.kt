@@ -21,9 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_ORDER_LIST
 import com.nureddinelmas.onlinesales.models.Order
+import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
 import com.nureddinelmas.onlinesales.viewModel.ProductViewModel
+import com.nureddinelmas.onlinesales.widgets.customer.AddNewCustomerScreen
+import com.nureddinelmas.onlinesales.widgets.customer.CustomerItem
+import com.nureddinelmas.onlinesales.widgets.customer.CustomerListScreen
 import com.nureddinelmas.onlinesales.widgets.order.AddOrderScreen
 import com.nureddinelmas.onlinesales.widgets.order.OrderDetailsScreen
 import com.nureddinelmas.onlinesales.widgets.order.OrderListScreen
@@ -35,61 +40,80 @@ import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(orderViewModel: OrderViewModel, productViewModel: ProductViewModel) {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val navController = rememberNavController()
-    val scope = rememberCoroutineScope()
-    val currentTitle = remember { mutableStateOf("Order List") }
-    ModalNavigationDrawer(
-        drawerContent = { DrawerContent(navController, drawerState) },
-        drawerState = drawerState
-    ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text(currentTitle.value) },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                if (drawerState.isClosed) drawerState.open() else drawerState.close()
-                            }
-                        }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
-                        }
-                    }
-                )
-            }
-        ) { paddingValues ->
-            NavHost(
-                navController = navController,
-                startDestination = "list",
-                modifier = Modifier.padding(paddingValues)
-            ) {
-                composable("list") {
-                    currentTitle.value = "Order List"
-                    OrderListScreen(orderViewModel, navController)
-                }
-                composable("add") {
-                    currentTitle.value = "Add Order"
-                    AddOrderScreen(productViewModel, navController, orderViewModel)
-                }
-                composable("newProduct") {
-                    currentTitle.value = "Add new product"
-                    AddNewProductScreen (navController, productViewModel::addProduct)
-                }
-                composable("productList") {
-                    currentTitle.value = "Product List"
-                    ProductListScreen (productViewModel)
-                }
-                composable("details/{order}" ) { backStackEntry ->
-                    val orderJson = backStackEntry.arguments?.getString("order")
-                    val decodeOrderJson = URLDecoder.decode(orderJson, StandardCharsets.UTF_8.toString())
-                    val order = Gson().fromJson(decodeOrderJson, Order::class.java)
-                    currentTitle.value = "Order Details"
-                    OrderDetailsScreen(order)
-                }
-            }
-        }
-    }
-
+fun MainScreen(
+	orderViewModel: OrderViewModel,
+	productViewModel: ProductViewModel,
+	customerViewModel: CustomerViewModel
+) {
+	val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+	val navController = rememberNavController()
+	val scope = rememberCoroutineScope()
+	val currentTitle = remember { mutableStateOf("Order List") }
+	ModalNavigationDrawer(
+		drawerContent = { DrawerContent(navController, drawerState) },
+		drawerState = drawerState
+	) {
+		Scaffold(
+			topBar = {
+				TopAppBar(
+					title = { Text(currentTitle.value) },
+					navigationIcon = {
+						IconButton(onClick = {
+							scope.launch {
+								if (drawerState.isClosed) drawerState.open() else drawerState.close()
+							}
+						}) {
+							Icon(Icons.Default.Menu, contentDescription = "Menu")
+						}
+					}
+				)
+			}
+		) { paddingValues ->
+			NavHost(
+				navController = navController,
+				startDestination = NAVIGATION_SCREEN_ORDER_LIST,
+				modifier = Modifier.padding(paddingValues)
+			) {
+				composable(NAVIGATION_SCREEN_ORDER_LIST) {
+					currentTitle.value = "Order List"
+					OrderListScreen(orderViewModel, navController)
+				}
+				composable("add") {
+					currentTitle.value = "Add Order"
+					AddOrderScreen(
+						productViewModel,
+						navController,
+						orderViewModel,
+						customerViewModel = customerViewModel
+					)
+				}
+				composable("newProduct") {
+					currentTitle.value = "Add new product"
+					AddNewProductScreen(navController, productViewModel::addProduct)
+				}
+				composable("productList") {
+					currentTitle.value = "Product List"
+					ProductListScreen(productViewModel)
+				}
+				
+				composable("newCustomer") {
+					currentTitle.value = "Add new customer"
+					AddNewCustomerScreen (navController, customerViewModel::addCustomer)
+				}
+				composable("customerList") {
+					currentTitle.value = "Customer List"
+					CustomerListScreen(customerViewModel)
+				}
+				composable("details/{order}") { backStackEntry ->
+					val orderJson = backStackEntry.arguments?.getString("order")
+					val decodeOrderJson =
+						URLDecoder.decode(orderJson, StandardCharsets.UTF_8.toString())
+					val order = Gson().fromJson(decodeOrderJson, Order::class.java)
+					currentTitle.value = "Order Details"
+					OrderDetailsScreen(order)
+				}
+			}
+		}
+	}
+	
 }

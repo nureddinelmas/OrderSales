@@ -27,12 +27,6 @@ fun AddNewProductScreen(navController: NavController, onSaveProduct: (Product) -
             .fillMaxSize()
             .padding(16.dp)
     ) {
-//        OutlinedTextField(
-//            value = productId.value,
-//            onValueChange = { productId.value = it },
-//            label = { Text("Product ID") },
-//            modifier = Modifier.padding(vertical = 4.dp)
-//        )
         OutlinedTextField(
             value = productName.value,
             onValueChange = { productName.value = it },
@@ -66,7 +60,7 @@ fun AddNewProductScreen(navController: NavController, onSaveProduct: (Product) -
                     productComment = productComment.value
                 )
                 onSaveProduct(newProduct)
-                navController.popBackStack()
+                navController.navigate("productList")
             },
             modifier = Modifier.padding(vertical = 8.dp)
         ) {

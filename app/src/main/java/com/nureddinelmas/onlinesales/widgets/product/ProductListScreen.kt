@@ -18,7 +18,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.nureddinelmas.onlinesales.models.Product
 import com.nureddinelmas.onlinesales.viewModel.ProductViewModel
 import java.util.UUID
@@ -58,6 +60,15 @@ fun ProductListScreen(productViewModel: ProductViewModel) {
                 }
             }
         }
+        
+        uiState.products.isEmpty() -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "No Products Found", style = TextStyle(fontSize = 20.sp))
+            }
+        }
     }
 
 
@@ -66,7 +77,6 @@ fun ProductListScreen(productViewModel: ProductViewModel) {
 @Composable
 fun ProductItem(product: Product) {
     Column(modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp)) {
-        Text(text = "Product ID: ${product.productId}", modifier = Modifier.padding(vertical = 4.dp))
         Text(text = "Product Name: ${product.productName}", modifier = Modifier.padding(vertical = 4.dp))
         Text(text = "Product Price: ${product.productPrice}", modifier = Modifier.padding(vertical = 4.dp))
         Text(text = "Product Currency: ${product.productCurrency}", modifier = Modifier.padding(vertical = 4.dp))

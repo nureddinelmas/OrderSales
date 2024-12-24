@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_ORDER_LIST
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -50,10 +52,16 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState) {
             style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),
             modifier = Modifier.padding(8.dp)
         )
-        ButtonWithIcon(scope, drawerState, navController, "Order List", Icons.Default.Star, "list")
-        ButtonWithIcon(scope, drawerState, navController, "Add Order", Icons.Default.Add, "add")
-        ButtonWithIcon(scope, drawerState, navController, "Add new product", Icons.Default.AddCircle, "newProduct")
+        Text("Lists", style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold), modifier = Modifier.padding(8.dp))
+        ButtonWithIcon(scope, drawerState, navController, "Order List", Icons.Default.Star, NAVIGATION_SCREEN_ORDER_LIST)
         ButtonWithIcon(scope, drawerState, navController, "Product List", Icons.Default.Star, "productList")
+        ButtonWithIcon(scope, drawerState, navController, "Customer List", Icons.Default.Star, "customerList")
+        HorizontalDivider(modifier = Modifier.padding(8.dp), thickness = 2.dp)
+        Text("Adding", style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),modifier = Modifier.padding(8.dp))
+        ButtonWithIcon(scope, drawerState, navController, "Add new Order", Icons.Default.AddCircle, "add")
+        ButtonWithIcon(scope, drawerState, navController, "Add new product", Icons.Default.AddCircle, "newProduct")
+        ButtonWithIcon(scope, drawerState, navController, "Add new customer", Icons.Default.AddCircle, "newCustomer")
+
     }
 }
 

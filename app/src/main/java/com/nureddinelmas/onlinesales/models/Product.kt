@@ -8,5 +8,9 @@ data class Product(
     val productPrice: String = "",
     val productCurrency: String = "",
     val productComment: String = "",
-    val productQuantity: Int = 0
-)
+    val productQuantity: Double = 0.0
+) {
+    fun totalPrice(): Double {
+        return productPrice.toDouble() * productQuantity
+    }
+}
