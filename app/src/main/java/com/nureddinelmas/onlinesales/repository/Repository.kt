@@ -32,6 +32,7 @@ class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
 			.await()
 			.documents
 			.mapNotNull { it.toObject(Order::class.java)?.copy(orderId = it.id) }
+			.sortedByDescending { it.orderDate }
 	}
 
 	override suspend fun getProducts(): Result<List<Product>> = runCatching {
@@ -40,6 +41,7 @@ class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
 			.await()
 			.documents
 			.mapNotNull { it.toObject(Product::class.java)?.copy(productId = it.id) }
+			.sortedByDescending { it.productId }
 	}
 	
 	override suspend fun getCustomers(): Result<List<Customer>> = runCatching {
@@ -48,6 +50,7 @@ class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
 			.await()
 			.documents
 			.mapNotNull { it.toObject(Customer::class.java)?.copy(customerId = it.id) }
+			.sortedByDescending { it.customerId }
 	}
 	
 	override suspend fun addOrder(order: Order): Result<Unit> = runCatching {

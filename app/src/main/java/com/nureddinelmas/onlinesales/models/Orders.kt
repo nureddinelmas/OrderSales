@@ -1,11 +1,11 @@
 package com.nureddinelmas.onlinesales.models
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import java.util.Date
 import java.util.UUID
 
 data class Order(
 	var orderId: String? = UUID.randomUUID().toString(),
+	var orderDate: Long = Date().time,
 	val customer: Customer = Customer(),
 	val productList: List<Product> = listOf(),
 ) {

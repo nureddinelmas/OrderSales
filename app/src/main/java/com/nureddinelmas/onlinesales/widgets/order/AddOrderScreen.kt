@@ -157,7 +157,7 @@ fun AddOrderScreen(
 					enabled = selectedCustomer.customerName != null && selectedProducts.isNotEmpty(),
 					onClick = {
 						val order =
-							Order(customer = selectedCustomer, productList = selectedProducts)
+							Order(customer = selectedCustomer, productList = selectedProducts, orderDate = System.currentTimeMillis())
 						orderViewModel.addOrder(order)
 						navController.navigate(NAVIGATION_SCREEN_ORDER_LIST)
 					},
