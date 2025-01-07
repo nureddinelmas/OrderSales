@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -31,6 +32,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -45,6 +47,8 @@ import com.nureddinelmas.onlinesales.models.Product
 import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
 import com.nureddinelmas.onlinesales.viewModel.ProductViewModel
+import com.nureddinelmas.onlinesales.widgets.customer.CustomerDialog
+import com.nureddinelmas.onlinesales.widgets.product.ProductDialog
 
 
 @Composable
@@ -56,7 +60,7 @@ fun AddOrderScreen(
 ) {
 	var showProductsDialog by remember { mutableStateOf(false) }
 	var showCustomerDialog by remember { mutableStateOf(false) }
-	val selectedProducts = remember { mutableStateListOf<Product>() }
+	var selectedProducts = remember { mutableStateListOf<Product>() }
 	val selectedCustomer = remember { Customer() }
 	Scaffold { padding ->
 		Column(modifier = Modifier.padding(padding)) {
@@ -144,7 +148,8 @@ fun AddOrderScreen(
 				ProductDialog(
 					viewModel = productViewModel,
 					onDismiss = { showProductsDialog = false },
-					selectedProducts = selectedProducts
+					selectedProducts = selectedProducts,
+					onSave = { selectedProducts = it as SnapshotStateList<Product> }
 				)
 			}
 			Row(
@@ -157,7 +162,11 @@ fun AddOrderScreen(
 					enabled = selectedCustomer.customerName != null && selectedProducts.isNotEmpty(),
 					onClick = {
 						val order =
-							Order(customer = selectedCustomer, productList = selectedProducts, orderDate = System.currentTimeMillis())
+							Order(
+								customer = selectedCustomer,
+								productList = selectedProducts,
+								orderDate = System.currentTimeMillis()
+							)
 						orderViewModel.addOrder(order)
 						navController.navigate(NAVIGATION_SCREEN_ORDER_LIST)
 					},
@@ -173,154 +182,9 @@ fun AddOrderScreen(
 }
 
 @Composable
-fun CustomerDialog(
-	viewModel: CustomerViewModel,
-	onDismiss: () -> Unit,
-	selectedCustomer: Customer = Customer()
-) {
-	val customer by viewModel.uiState.collectAsState()
-	Dialog(onDismissRequest = onDismiss) {
-		Surface(
-			shape = MaterialTheme.shapes.extraLarge,
-		) {
-			Column {
-				LazyColumn {
-					items(customer.customer) { customer ->
-						Row(
-							modifier = Modifier
-								.fillMaxWidth()
-								.padding(5.dp),
-							verticalAlignment = Alignment.CenterVertically,
-							horizontalArrangement = Arrangement.SpaceBetween
-						) {
-							Text(text = customer.customerName ?: "")
-							Button(
-								onClick = {
-									selectedCustomer.customerName = customer.customerName
-									selectedCustomer.customerTel = customer.customerTel
-									selectedCustomer.customerAddress = customer.customerAddress
-									selectedCustomer.customerCity = customer.customerCity
-									selectedCustomer.customerCountry = customer.customerCountry
-									selectedCustomer.customerEmail = customer.customerEmail
-									onDismiss()
-								},
-								modifier = Modifier
-									.padding(5.dp)
-							) { Text("Add") }
-						}
-					}
-				}
-			}
-		}
-	}
-	
-}
-
-
-@Composable
-fun ProductDialog(
-	viewModel: ProductViewModel,
-	onDismiss: () -> Unit,
-	selectedProducts: MutableList<Product>,
-) {
-	val products by viewModel.uiState.collectAsState()
-	
-	Dialog(onDismissRequest = onDismiss) {
-		Surface(
-			modifier = Modifier
-				.fillMaxSize()
-				.fillMaxHeight()
-				.fillMaxWidth(),
-			shape = MaterialTheme.shapes.extraLarge,
-		) {
-			Column {
-				LazyColumn {
-					items(products.products) { product ->
-						ProductSearchItem(
-							product = product,
-							selectedProducts
-						)
-					}
-				}
-				Button(
-					enabled = selectedProducts.isNotEmpty() || products.products.isEmpty(),
-					onClick = {
-						onDismiss()
-					},
-					modifier = Modifier
-						.height(50.dp)
-						.width(100.dp)
-						.padding(5.dp)
-				) { Text("Ok") }
-				
-			}
-		}
-	}
-}
-
-
-@Composable
-fun ProductSearchItem(
-	product: Product,
-	selectedProducts: MutableList<Product>
-) {
-	var quantity by remember { mutableFloatStateOf(0f) }
-	var isEnable = remember { mutableStateOf(false) }
-	Row(
-		modifier = Modifier
-			.fillMaxWidth()
-			.padding(5.dp),
-		verticalAlignment = Alignment.CenterVertically,
-		horizontalArrangement = Arrangement.SpaceBetween
-	) {
-		Text(text = product.productName)
-		
-		Row(
-			verticalAlignment = Alignment.CenterVertically
-		) {
-			IconButton(onClick = {
-				if (quantity > 0) quantity -= 0.5f
-			}) {
-				Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Decrease Quantity")
-			}
-			
-			Text(text = quantity.toString(), modifier = Modifier.padding(horizontal = 16.dp))
-			
-			IconButton(onClick = { quantity += 0.5f }) {
-				Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Increase Quantity")
-			}
-			
-			Button(
-				enabled = !isEnable.value,
-				onClick = {
-					if (quantity > 0) {
-						val productList = Product(
-							productName = product.productName,
-							productQuantity = quantity.toDouble(),
-							productPrice = product.productPrice,
-							productCurrency = product.productCurrency,
-							productComment = product.productComment
-						)
-						selectedProducts.add(productList)
-					}
-					if (quantity > 0) {
-						isEnable.value = true
-					}
-					
-				},
-				modifier = Modifier
-					.padding(5.dp)
-			) { Text("Add") }
-		}
-	}
-}
-
-
-@Composable
 fun AddButton(
 	text: String,
 	onClick: () -> Unit
-
 ) {
 	Row(
 		modifier = Modifier

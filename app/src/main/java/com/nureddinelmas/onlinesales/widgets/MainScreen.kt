@@ -22,6 +22,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_ORDER_LIST
+import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_UPDATE_ORDER
 import com.nureddinelmas.onlinesales.models.Order
 import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
@@ -32,6 +33,7 @@ import com.nureddinelmas.onlinesales.widgets.customer.CustomerListScreen
 import com.nureddinelmas.onlinesales.widgets.order.AddOrderScreen
 import com.nureddinelmas.onlinesales.widgets.order.OrderDetailsScreen
 import com.nureddinelmas.onlinesales.widgets.order.OrderListScreen
+import com.nureddinelmas.onlinesales.widgets.order.UpdateOrderScreen
 import com.nureddinelmas.onlinesales.widgets.product.AddNewProductScreen
 import com.nureddinelmas.onlinesales.widgets.product.ProductListScreen
 import kotlinx.coroutines.launch
@@ -104,13 +106,22 @@ fun MainScreen(
 					currentTitle.value = "Customer List"
 					CustomerListScreen(customerViewModel)
 				}
+				
+				composable(NAVIGATION_SCREEN_UPDATE_ORDER) { backStackEntry ->
+					val orderJson = backStackEntry.arguments?.getString("order")
+					val decodeOrderJson =
+						URLDecoder.decode(orderJson, StandardCharsets.UTF_8.toString())
+					val order = Gson().fromJson(decodeOrderJson, Order::class.java)
+					currentTitle.value = "Update Order"
+					UpdateOrderScreen(order) { }
+				}
 				composable("details/{order}") { backStackEntry ->
 					val orderJson = backStackEntry.arguments?.getString("order")
 					val decodeOrderJson =
 						URLDecoder.decode(orderJson, StandardCharsets.UTF_8.toString())
 					val order = Gson().fromJson(decodeOrderJson, Order::class.java)
 					currentTitle.value = "Order Details"
-					OrderDetailsScreen(order)
+					OrderDetailsScreen(order, productViewModel, orderViewModel)
 				}
 			}
 		}

@@ -19,7 +19,7 @@ interface Repository {
 	suspend fun addCustomer(customer: Customer): Result<Unit>
 	suspend fun deleteOrder(orderId: String): Result<Unit>
 	suspend fun deleteProduct(productId: String): Result<Unit>
-
+	suspend fun updateOrder(order: Order): Result<Unit>
 
 }
 
@@ -92,6 +92,13 @@ class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
 			}
 	}
 	
+	override suspend fun updateOrder(order: Order): Result<Unit> = runCatching {
+		db.collection(CONSTANTS_FIREBASE_COLLECTION_ORDERS)
+			.document(order.orderId!!)
+			.set(order)
+			.addOnSuccessListener { Log.d("!!!", "DocumentSnapshot added with ID: ${order.orderId}") }
+			.addOnFailureListener { e -> Log.w("!!!", "Error adding document", e) }
+	}
 	override suspend fun deleteOrder(orderId: String): Result<Unit> =
 		runCatching {
 			val orderRef = db.collection(CONSTANTS_FIREBASE_COLLECTION_ORDERS)

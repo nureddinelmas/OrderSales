@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_ORDER_LIST
+import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_UPDATE_ORDER
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -61,7 +62,7 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState) {
         ButtonWithIcon(scope, drawerState, navController, "Add new Order", Icons.Default.AddCircle, "add")
         ButtonWithIcon(scope, drawerState, navController, "Add new product", Icons.Default.AddCircle, "newProduct")
         ButtonWithIcon(scope, drawerState, navController, "Add new customer", Icons.Default.AddCircle, "newCustomer")
-
+        Text("Update", style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),modifier = Modifier.padding(8.dp))
     }
 }
 

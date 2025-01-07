@@ -7,7 +7,7 @@ data class Order(
 	var orderId: String? = UUID.randomUUID().toString(),
 	var orderDate: Long = Date().time,
 	val customer: Customer = Customer(),
-	val productList: List<Product> = listOf(),
+	var productList: List<Product> = listOf(),
 ) {
 	fun totalPrice(): Double {
 		return productList.sumOf { it.productPrice.toDouble() * it.productQuantity }

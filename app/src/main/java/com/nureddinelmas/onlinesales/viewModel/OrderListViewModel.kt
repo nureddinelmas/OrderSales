@@ -57,6 +57,22 @@ class OrderViewModel(private val repository: Repository) : ViewModel() {
 				}
 		}
 	}
+	
+	fun updateOrder(order: Order) {
+		viewModelScope.launch {
+			repository.updateOrder(order)
+				.onSuccess {
+					loadOrders()
+					Log.d("!!!", "OK updated orders")
+				}
+				.onFailure { throwable ->
+					_uiState.value = OrderUiState(
+						error =
+						throwable.message ?: "Error updating order"
+					)
+				}
+		}
+	}
 
 	
 	fun deleteOrder(orderId: String) {

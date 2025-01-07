@@ -14,3 +14,5 @@ const val NAVIGATION_SCREEN_ORDER_DETAILS = "OrderDetails"
 const val NAVIGATION_SCREEN_ORDER_LIST = "orderList"
 const val NAVIGATION_SCREEN_PRODUCT_LIST = "ProductList"
 const val NAVIGATION_SCREEN_CUSTOMER_LIST = "CustomerList"
+
+const val NAVIGATION_SCREEN_UPDATE_ORDER = "update/{order}"

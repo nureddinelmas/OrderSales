@@ -1,5 +1,6 @@
 package com.nureddinelmas.onlinesales.widgets.order
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -21,9 +27,19 @@ import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nureddinelmas.onlinesales.models.Order
+import com.nureddinelmas.onlinesales.models.Product
+import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
+import com.nureddinelmas.onlinesales.viewModel.ProductViewModel
+import com.nureddinelmas.onlinesales.widgets.product.ProductDialog
+import com.nureddinelmas.onlinesales.widgets.product.ProductItems
 
 @Composable
-fun OrderDetailsScreen(order: Order) {
+fun OrderDetailsScreen(
+	order: Order,
+	productViewModel: ProductViewModel,
+	orderViewModel: OrderViewModel
+) {
+	var showProductsDialog by remember { mutableStateOf(false) }
 	Card(
 		modifier = Modifier
 			.fillMaxWidth()
@@ -114,6 +130,23 @@ fun OrderDetailsScreen(order: Order) {
 					textAlign = TextAlign.Center
 				)
 			}
+			Row(
+				horizontalArrangement = Arrangement.Start,
+			) {
+				AddButton(text = "Update Order") {
+					showProductsDialog = true
+				}
+			}
+			if (showProductsDialog) ProductDialog(
+				viewModel = productViewModel,
+				onDismiss = { showProductsDialog = false },
+				selectedProducts = order.productList,
+				onSave = { list ->
+					order.productList = list as SnapshotStateList<Product>
+					orderViewModel.updateOrder(order)
+					Log.d("!!!", "OrderDetailsScreen: ${order.productList}")
+				}
+			)
 		}
 	}
 }

@@ -75,7 +75,15 @@ fun OrderListScreen(
 				items(
 					items = uiState.orders,
 					key = { UUID.randomUUID().toString() }) { order ->
-					OrderItem(order) {
+					OrderItem(order, onUpdateClick = {
+						val gson = Gson()
+						val orderJson = gson.toJson(order)
+						val encodedOrderJson = java.net.URLEncoder.encode(
+							orderJson,
+							StandardCharsets.UTF_8.toString()
+						)
+						navController.navigate("update/${encodedOrderJson}")
+					}, onClick = {
 						val gson = Gson()
 						val orderJson = gson.toJson(order)
 						val encodedOrderJson = java.net.URLEncoder.encode(
@@ -83,8 +91,8 @@ fun OrderListScreen(
 							StandardCharsets.UTF_8.toString()
 						)
 						navController.navigate("details/${encodedOrderJson}")
-					}
-					
+						
+					})
 				}
 			}
 		}
@@ -102,7 +110,7 @@ fun OrderListScreen(
 
 
 @Composable
-fun OrderItem(order: Order, onClick: () -> Unit) {
+fun OrderItem(order: Order, onClick: () -> Unit, onUpdateClick: () -> Unit) {
 	
 	Card(
 		modifier = Modifier
@@ -121,16 +129,24 @@ fun OrderItem(order: Order, onClick: () -> Unit) {
 			) {
 				Text(
 					text = "Customer Name",
-					modifier = Modifier.padding(vertical = 4.dp).weight(1f)
+					modifier = Modifier
+						.padding(vertical = 4.dp)
+						.weight(1.5f),
+					textAlign = TextAlign.Start
 				)
 				Text(
 					text = "Quantity",
-					modifier = Modifier.padding(vertical = 4.dp).weight(1f),
+					modifier = Modifier
+						.padding(vertical = 4.dp)
+						.weight(1f),
 					textAlign = TextAlign.Center
 				)
 				Text(
 					text = "Price",
-					modifier = Modifier.padding(vertical = 4.dp).weight(1f)
+					modifier = Modifier
+						.padding(vertical = 4.dp)
+						.weight(1f),
+					textAlign = TextAlign.Center
 				)
 			}
 			Row(
@@ -141,22 +157,32 @@ fun OrderItem(order: Order, onClick: () -> Unit) {
 			) {
 				Text(
 					text = "${order.customer.customerName}",
-					modifier = Modifier.padding(vertical = 4.dp).weight(1f)
+					modifier = Modifier
+						.padding(vertical = 4.dp)
+						.weight(1.5f),
+					textAlign = TextAlign.Start
 				)
 				
 				Text(
 					text = "${order.totalQuantity()}",
-					modifier = Modifier.padding(vertical = 4.dp).weight(1f),
+					modifier = Modifier
+						.padding(vertical = 4.dp)
+						.weight(1f),
 					textAlign = TextAlign.Center
 				)
 				
 				Text(
 					text = "${order.totalPrice()}  ${order.productList[0].productCurrency.uppercase()}",
-					modifier = Modifier.padding(vertical = 4.dp).weight(1f)
+					modifier = Modifier
+						.padding(vertical = 4.dp)
+						.weight(1f),
+					textAlign = TextAlign.Center
 				)
 				
 			}
-			
+//			Button(onUpdateClick) {
+//				Text("Update")
+//			}
 			HorizontalDivider(
 				thickness = 1.dp,
 				color = Color.Gray,
