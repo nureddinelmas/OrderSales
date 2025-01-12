@@ -28,7 +28,6 @@ fun ProductSearchScreen(modifier: Modifier) {
     var searchTerm by remember { mutableStateOf("") }
     var productList by remember { mutableStateOf(listOf<Product>()) }
     val selectedProducts = remember { mutableStateListOf<Product>() }
-
     Column {
         TextField(
             value = searchTerm,

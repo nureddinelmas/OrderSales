@@ -19,22 +19,22 @@ import com.nureddinelmas.onlinesales.widgets.MainScreen
 
 
 class MainActivity : ComponentActivity() {
-    private val repository by lazy { RepositoryImpl(FirebaseFirestore.getInstance()) }
-    private val orderViewModelFactory by lazy { OrderViewModelFactory(repository) }
-    private val productViewModelFactory by lazy { ProductViewModelFactory(repository) }
-    private val orderViewModel: OrderViewModel by viewModels { orderViewModelFactory }
-    private val productViewModel: ProductViewModel by viewModels { productViewModelFactory }
-    private val customerViewModelFactory by lazy { CustomerViewModelFactory(repository) }
-    private val customerViewModel: CustomerViewModel by viewModels { customerViewModelFactory }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            OnlineSalesTheme {
-                MainScreen(orderViewModel, productViewModel, customerViewModel = customerViewModel)
-            }
-        }
-    }
+	private val repository by lazy { RepositoryImpl(FirebaseFirestore.getInstance()) }
+	private val orderViewModelFactory by lazy { OrderViewModelFactory(repository) }
+	private val productViewModelFactory by lazy { ProductViewModelFactory(repository) }
+	private val orderViewModel: OrderViewModel by viewModels { orderViewModelFactory }
+	private val productViewModel: ProductViewModel by viewModels { productViewModelFactory }
+	private val customerViewModelFactory by lazy { CustomerViewModelFactory(repository) }
+	private val customerViewModel: CustomerViewModel by viewModels { customerViewModelFactory }
+	
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		enableEdgeToEdge()
+		setContent {
+			OnlineSalesTheme {
+				MainScreen(orderViewModel, productViewModel, customerViewModel = customerViewModel)
+			}
+		}
+	}
 }
 

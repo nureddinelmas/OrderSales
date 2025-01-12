@@ -8,12 +8,13 @@ data class Order(
 	var orderDate: Long = Date().time,
 	val customer: Customer = Customer(),
 	var productList: List<Product> = listOf(),
+	var shipping: Double = 0.0,
 ) {
 	fun totalPrice(): Double {
-		return productList.sumOf { it.productPrice.toDouble() * it.productQuantity }
+		return productList.sumOf { it.productPrice.toDouble() * it.productQuantity + shipping }
 	}
 	
 	fun totalQuantity(): Double {
-		return productList.sumOf { it.productQuantity.toDouble() }
+		return productList.sumOf { it.productQuantity }
 	}
 }

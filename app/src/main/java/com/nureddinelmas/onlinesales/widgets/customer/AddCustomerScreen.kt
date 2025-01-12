@@ -17,7 +17,6 @@ import com.nureddinelmas.onlinesales.models.Product
 
 @Composable
 fun AddNewCustomerScreen(navController: NavController, onSaveProduct: (Customer) -> Unit) {
-    val customerId = remember { mutableStateOf("") }
     val customerName = remember { mutableStateOf("") }
     val customerMobilePhone = remember { mutableStateOf("") }
     val customerAddress = remember { mutableStateOf("") }

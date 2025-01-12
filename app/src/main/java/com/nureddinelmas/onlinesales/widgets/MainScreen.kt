@@ -1,5 +1,6 @@
 package com.nureddinelmas.onlinesales.widgets
 
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import com.google.gson.Gson
 import androidx.compose.material.icons.Icons
@@ -51,13 +52,16 @@ fun MainScreen(
 	val navController = rememberNavController()
 	val scope = rememberCoroutineScope()
 	val currentTitle = remember { mutableStateOf("Order List") }
+	var shouldShowTopBar = remember { mutableStateOf(true) }
 	ModalNavigationDrawer(
 		drawerContent = { DrawerContent(navController, drawerState) },
 		drawerState = drawerState
 	) {
+		Log.w("!!!", "MainScreen shouldShowTopBar: $shouldShowTopBar")
+		Log.w("!!!", "MainScreen destination: ${navController.currentBackStackEntry?.destination?.route}")
 		Scaffold(
 			topBar = {
-				TopAppBar(
+			if (shouldShowTopBar.value)	TopAppBar(
 					title = { Text(currentTitle.value) },
 					navigationIcon = {
 						IconButton(onClick = {
@@ -79,6 +83,7 @@ fun MainScreen(
 				composable(NAVIGATION_SCREEN_ORDER_LIST) {
 					currentTitle.value = "Order List"
 					OrderListScreen(orderViewModel, navController)
+					shouldShowTopBar.value = true
 				}
 				composable("add") {
 					currentTitle.value = "Add Order"
@@ -121,7 +126,8 @@ fun MainScreen(
 						URLDecoder.decode(orderJson, StandardCharsets.UTF_8.toString())
 					val order = Gson().fromJson(decodeOrderJson, Order::class.java)
 					currentTitle.value = "Order Details"
-					OrderDetailsScreen(order, productViewModel, orderViewModel)
+					OrderDetailsScreen(order, productViewModel, orderViewModel, navController)
+					shouldShowTopBar.value = false
 				}
 			}
 		}

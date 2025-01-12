@@ -13,6 +13,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,7 +60,7 @@ fun UpdateOrderScreen(order: Order, onOrderUpdated: (Order) -> Unit) {
 @Composable
 fun ProductCard(product: Product, onProductUpdated: (Product) -> Unit) {
 	var productName by remember { mutableStateOf(product.productName) }
-	var productQuantity by remember { mutableStateOf(product.productQuantity) }
+	var productQuantity by remember { mutableDoubleStateOf(product.productQuantity) }
 	var productPrice by remember { mutableStateOf(product.productPrice) }
 	
 	Card(
@@ -85,7 +86,7 @@ fun ProductCard(product: Product, onProductUpdated: (Product) -> Unit) {
 			)
 			OutlinedTextField(
 				enabled = false,
-				value = productPrice.toString(),
+				value = productPrice,
 				onValueChange = { productPrice = (it.toDoubleOrNull() ?: 0.0).toString() },
 				label = { Text("Price") },
 				keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)

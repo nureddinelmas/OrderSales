@@ -1,5 +1,6 @@
 package com.nureddinelmas.onlinesales.widgets.product
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,12 +55,12 @@ fun ProductDialog(
 					items(products.products) { product ->
 						val existingProduct = tempSelectedProducts.find { it.productId == product.productId }
 						val initialQuantity = existingProduct?.productQuantity ?: 0.0
-						
+						Log.d("!!!", "Product: $product")
 						ProductItems(
 							product = product,
 							initialQuantity = initialQuantity,
 							onQuantityChange = { quantity ->
-								if (quantity > 0) {
+								if (quantity > -1) {
 									val updatedProduct = product.copy(productQuantity = quantity)
 									if (existingProduct != null) {
 										tempSelectedProducts[tempSelectedProducts.indexOf(existingProduct)] = updatedProduct
@@ -91,7 +93,7 @@ fun ProductItems(
 	initialQuantity: Double,
 	onQuantityChange: (Double) -> Unit
 ) {
-	var quantity by remember { mutableStateOf(initialQuantity) }
+	var quantity by remember { mutableDoubleStateOf(initialQuantity) }
 	
 	Row(
 		modifier = Modifier

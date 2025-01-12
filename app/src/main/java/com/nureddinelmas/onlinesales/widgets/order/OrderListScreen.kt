@@ -75,7 +75,7 @@ fun OrderListScreen(
 				items(
 					items = uiState.orders,
 					key = { UUID.randomUUID().toString() }) { order ->
-					OrderItem(order, onUpdateClick = {
+				if (order.totalQuantity() != 0.0)	OrderItem(order, onUpdateClick = {
 						val gson = Gson()
 						val orderJson = gson.toJson(order)
 						val encodedOrderJson = java.net.URLEncoder.encode(
