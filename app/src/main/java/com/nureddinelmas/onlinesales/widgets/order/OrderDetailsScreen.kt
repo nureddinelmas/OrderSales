@@ -57,9 +57,9 @@ fun OrderDetailsScreen(
 ) {
 	var showProductsDialog by remember { mutableStateOf(false) }
 	var showShippingDialog by remember { mutableStateOf(false) }
-	var showCustomerDialog by remember { mutableStateOf(false) }
+
 	var currentOrder by remember { mutableStateOf(order) }
-	
+
 	val currentCustomer by remember { mutableStateOf(customerViewModel.getCustomerById(order.customerId!!))   }
 
 	Column {
@@ -71,12 +71,12 @@ fun OrderDetailsScreen(
 				}
 			}
 		)
-		if (!showProductsDialog && !showCustomerDialog) {
+		if (!showProductsDialog) {
 			Card(
 				modifier = Modifier
 					.fillMaxWidth()
 					.padding(8.dp)
-					.weight(2.5f),
+					.weight(2f),
 				elevation = CardDefaults.cardElevation(4.dp)
 			) {
 				Column(modifier = Modifier.padding(horizontal = 16.dp)) {
@@ -91,13 +91,6 @@ fun OrderDetailsScreen(
 					Text(text = "Country:   ${currentCustomer?.customerCountry}")
 					Text(text = "Tel:   ${currentCustomer?.customerTel}")
 					Text(text = "Email:   ${currentCustomer?.customerEmail}")
-					Button(
-						modifier = Modifier.padding(vertical = 4.dp),
-						onClick = {
-							showCustomerDialog = true
-						}) {
-						Text("Update Customer")
-					}
 				}
 				
 			}
@@ -241,15 +234,5 @@ fun OrderDetailsScreen(
 				Log.d("!!!", "OrderDetailsScreen: ${order.productList}")
 			}
 		)
-		
-		if (showCustomerDialog) AddNewCustomerScreen(
-			navController,
-			customer = currentCustomer!!,
-			customerViewModel,
-			true
-		) {
-			showCustomerDialog = false
-			Log.d("!!!", "OrderDetailsScreen 1: ${currentCustomer}")
-		}
 	}
 }

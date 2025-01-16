@@ -6,7 +6,6 @@ import com.nureddinelmas.onlinesales.models.Customer
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nureddinelmas.onlinesales.models.Order
 import com.nureddinelmas.onlinesales.repository.Repository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -82,9 +81,9 @@ class CustomerViewModel(private val repository: Repository) : ViewModel() {
 	}
 	
 	
-	fun deleteOrder(customerId: String) {
+	fun deleteCustomer(customerId: String) {
 		viewModelScope.launch {
-			repository.deleteOrder(customerId)
+			repository.deleteCustomer(customerId)
 				.onSuccess {
 					loadCustomers()
 					Log.d("!!!", "OK deleted orders")

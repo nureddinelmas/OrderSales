@@ -183,9 +183,7 @@ fun OrderItem(order: Order, onClick: () -> Unit, onUpdateClick: () -> Unit, cust
 				)
 				
 			}
-//			Button(onUpdateClick) {
-//				Text("Update")
-//			}
+
 			HorizontalDivider(
 				thickness = 1.dp,
 				color = Color.Gray,

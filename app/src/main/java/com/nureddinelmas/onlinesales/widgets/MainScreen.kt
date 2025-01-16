@@ -106,11 +106,11 @@ fun MainScreen(
 				
 				composable("newCustomer") {
 					currentTitle.value = "Add new customer"
-					AddNewCustomerScreen (navController, Customer(), customerViewModel, false){}
+					AddNewCustomerScreen (navController, Customer(), customerViewModel, false, orderViewModel = orderViewModel){}
 				}
 				composable("customerList") {
 					currentTitle.value = "Customer List"
-					CustomerListScreen(customerViewModel)
+					CustomerListScreen(customerViewModel, navController, orderViewModel)
 				}
 				
 				composable(NAVIGATION_SCREEN_UPDATE_ORDER) { backStackEntry ->
