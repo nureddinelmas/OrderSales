@@ -24,6 +24,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_ORDER_LIST
 import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_UPDATE_ORDER
+import com.nureddinelmas.onlinesales.models.Customer
 import com.nureddinelmas.onlinesales.models.Order
 import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
@@ -82,7 +83,7 @@ fun MainScreen(
 			) {
 				composable(NAVIGATION_SCREEN_ORDER_LIST) {
 					currentTitle.value = "Order List"
-					OrderListScreen(orderViewModel, navController)
+					OrderListScreen(orderViewModel, customerViewModel,navController)
 					shouldShowTopBar.value = true
 				}
 				composable("add") {
@@ -105,7 +106,7 @@ fun MainScreen(
 				
 				composable("newCustomer") {
 					currentTitle.value = "Add new customer"
-					AddNewCustomerScreen (navController, customerViewModel::addCustomer)
+					AddNewCustomerScreen (navController, Customer(), customerViewModel, false){}
 				}
 				composable("customerList") {
 					currentTitle.value = "Customer List"
@@ -126,7 +127,7 @@ fun MainScreen(
 						URLDecoder.decode(orderJson, StandardCharsets.UTF_8.toString())
 					val order = Gson().fromJson(decodeOrderJson, Order::class.java)
 					currentTitle.value = "Order Details"
-					OrderDetailsScreen(order, productViewModel, orderViewModel, navController)
+					OrderDetailsScreen(order, productViewModel, orderViewModel,customerViewModel, navController)
 					shouldShowTopBar.value = false
 				}
 			}

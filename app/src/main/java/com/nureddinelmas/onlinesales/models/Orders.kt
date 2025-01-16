@@ -6,7 +6,7 @@ import java.util.UUID
 data class Order(
 	var orderId: String? = UUID.randomUUID().toString(),
 	var orderDate: Long = Date().time,
-	val customer: Customer = Customer(),
+	val customerId: String? = "",
 	var productList: List<Product> = listOf(),
 	var shipping: Double = 0.0,
 ) {

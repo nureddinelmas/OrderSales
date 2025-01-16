@@ -1,7 +1,9 @@
 package com.nureddinelmas.onlinesales.widgets.product
 
+import android.content.pm.ModuleInfo
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,13 +25,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.nureddinelmas.onlinesales.models.Product
 import com.nureddinelmas.onlinesales.viewModel.ProductViewModel
 
@@ -41,51 +41,69 @@ fun ProductDialog(
 	onSave: (List<Product>) -> Unit
 ) {
 	val products by viewModel.uiState.collectAsState()
-	val tempSelectedProducts = remember { mutableStateListOf<Product>().apply { addAll(selectedProducts) } }
+	val tempSelectedProducts =
+		remember { mutableStateListOf<Product>().apply { addAll(selectedProducts) } }
 	
-	Dialog(onDismissRequest = onDismiss) {
-		Surface(
+	Column(
+		modifier = Modifier
+			.fillMaxWidth()
+			.wrapContentHeight()
+			.padding(5.dp)
+	) {
+		LazyColumn (
 			modifier = Modifier
 				.fillMaxWidth()
-				.wrapContentHeight(),
-			shape = MaterialTheme.shapes.extraLarge,
+				.weight(8f)
 		) {
-			Column {
-				LazyColumn {
-					items(products.products) { product ->
-						val existingProduct = tempSelectedProducts.find { it.productId == product.productId }
-						val initialQuantity = existingProduct?.productQuantity ?: 0.0
-						Log.d("!!!", "Product: $product")
-						ProductItems(
-							product = product,
-							initialQuantity = initialQuantity,
-							onQuantityChange = { quantity ->
-								if (quantity > -1) {
-									val updatedProduct = product.copy(productQuantity = quantity)
-									if (existingProduct != null) {
-										tempSelectedProducts[tempSelectedProducts.indexOf(existingProduct)] = updatedProduct
-									} else {
-										tempSelectedProducts.add(updatedProduct)
-									}
-								} else {
-									tempSelectedProducts.remove(product)
-								}
+			items(products.products) { product ->
+				val existingProduct =
+					tempSelectedProducts.find { it.productId == product.productId }
+				val initialQuantity = existingProduct?.productQuantity ?: 0.0
+				ProductItems(
+					product = product,
+					initialQuantity = initialQuantity,
+					onQuantityChange = { quantity ->
+						if (quantity > -1) {
+							val updatedProduct = product.copy(productQuantity = quantity)
+							if (existingProduct != null) {
+								tempSelectedProducts[tempSelectedProducts.indexOf(existingProduct)] =
+									updatedProduct
+							} else {
+								tempSelectedProducts.add(updatedProduct)
 							}
-						)
+						} else {
+							tempSelectedProducts.remove(product)
+						}
 					}
-				}
-				Button(
-					onClick = {
-						onSave(tempSelectedProducts)
-						onDismiss()
-					},
-					modifier = Modifier
-						.padding(5.dp)
-				) { Text("Save") }
+				)
 			}
+		}
+		Row (
+			horizontalArrangement= Arrangement.SpaceBetween
+		) {
+			Button(
+				onClick = {
+					onDismiss()
+				},
+				modifier = Modifier
+					.padding(vertical = 2.dp, horizontal = 9.dp)
+					.fillMaxWidth()
+					.weight(0.7f)
+			) { Text("Cancel") }
+			Button(
+				onClick = {
+					onSave(tempSelectedProducts)
+					onDismiss()
+				},
+				modifier = Modifier
+					.padding(vertical = 2.dp)
+					.fillMaxWidth()
+					.weight(0.7f)
+			) { Text("Save") }
 		}
 	}
 }
+
 
 @Composable
 fun ProductItems(
@@ -102,10 +120,11 @@ fun ProductItems(
 		verticalAlignment = Alignment.CenterVertically,
 		horizontalArrangement = Arrangement.SpaceBetween
 	) {
-		Text(text = product.productName)
+		Text(text = product.productName, modifier = Modifier.weight(5f))
 		
 		Row(
 			verticalAlignment = Alignment.CenterVertically
+			, modifier = Modifier.weight(3f)
 		) {
 			IconButton(onClick = {
 				if (quantity > 0) quantity -= 0.5

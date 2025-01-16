@@ -20,7 +20,9 @@ interface Repository {
 	suspend fun deleteOrder(orderId: String): Result<Unit>
 	suspend fun deleteProduct(productId: String): Result<Unit>
 	suspend fun updateOrder(order: Order): Result<Unit>
-
+	suspend fun updateCustomer(customer: Customer): Result<Unit>
+	
+	suspend fun getCustomerById(customerId: String): Result<Customer>
 }
 
 class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
@@ -51,6 +53,15 @@ class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
 			.documents
 			.mapNotNull { it.toObject(Customer::class.java)?.copy(customerId = it.id) }
 			.sortedByDescending { it.customerId }
+	}
+	
+	override suspend fun getCustomerById(customerId: String): Result<Customer> = runCatching {
+		db.collection(CONSTANTS_FIREBASE_COLLECTION_CUSTOMERS)
+			.document(customerId)
+			.get()
+			.await()
+			.toObject(Customer::class.java)
+			?: throw Exception("Customer not found")
 	}
 	
 	override suspend fun addOrder(order: Order): Result<Unit> = runCatching {
@@ -98,6 +109,14 @@ class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
 			.set(order)
 			.addOnSuccessListener { Log.d("!!!", "DocumentSnapshot added with ID: ${order.orderId}") }
 			.addOnFailureListener { e -> Log.w("!!!", "Error adding document", e) }
+	}
+	
+	override suspend fun updateCustomer(customer: Customer): Result<Unit> = runCatching {
+		db.collection(CONSTANTS_FIREBASE_COLLECTION_CUSTOMERS)
+			.document(customer.customerId!!)
+			.set(customer)
+			.addOnSuccessListener { Log.d("!!!", "DocumentSnapshot updated with ID: ${customer.customerId}") }
+			.addOnFailureListener { e -> Log.w("!!!", "Error updating document", e) }
 	}
 	override suspend fun deleteOrder(orderId: String): Result<Unit> =
 		runCatching {

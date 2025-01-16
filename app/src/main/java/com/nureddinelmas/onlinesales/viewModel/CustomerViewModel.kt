@@ -27,7 +27,7 @@ class CustomerViewModel(private val repository: Repository) : ViewModel() {
 		loadCustomers()
 	}
 	
-	private fun loadCustomers() {
+	fun loadCustomers() {
 		viewModelScope.launch {
 			_uiState.value = CustomerUiState(isLoading = true)
 			repository.getCustomers()
@@ -59,6 +59,26 @@ class CustomerViewModel(private val repository: Repository) : ViewModel() {
 					)
 				}
 		}
+	}
+	
+	fun updateCustomer(customer: Customer) {
+		viewModelScope.launch {
+			repository.updateCustomer(customer)
+				.onSuccess {
+					loadCustomers()
+					Log.d("!!!", "OK updated Customer")
+				}
+				.onFailure { throwable ->
+					_uiState.value = CustomerUiState(
+						error =
+						throwable.message ?: "Error updating Customer"
+					)
+				}
+		}
+	}
+	
+	fun getCustomerById(customerId: String): Customer? {
+		return   _uiState.value.customer.find { it.customerId == customerId }
 	}
 	
 	

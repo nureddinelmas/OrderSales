@@ -3,42 +3,26 @@ package com.nureddinelmas.onlinesales.widgets.order
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_ORDER_LIST
 import com.nureddinelmas.onlinesales.models.Customer
@@ -61,13 +45,14 @@ fun AddOrderScreen(
 	var showProductsDialog by remember { mutableStateOf(false) }
 	var showCustomerDialog by remember { mutableStateOf(false) }
 	var selectedProducts = remember { mutableStateListOf<Product>() }
-	val selectedCustomer = remember { Customer() }
+	val selectedCustomerId = remember { mutableStateOf("") }
 	Scaffold { padding ->
-		Column(modifier = Modifier.padding(padding)) {
+		if (!showProductsDialog) Column(modifier = Modifier.padding(padding)) {
 			Card(
 				modifier = Modifier
 					.fillMaxWidth()
-					.padding(8.dp),
+					.padding(8.dp)
+					.weight(2.5f),
 				elevation = CardDefaults.cardElevation(4.dp)
 			) {
 				
@@ -84,11 +69,8 @@ fun AddOrderScreen(
 						horizontalArrangement = Arrangement.SpaceBetween
 					) {
 						Text(
-							text = selectedCustomer.customerName ?: "",
-							modifier = Modifier.weight(1f)
-						)
-						Text(
-							text = selectedCustomer.customerTel ?: "",
+							text = customerViewModel.getCustomerById(selectedCustomerId.value)?.customerName
+								?: "",
 							modifier = Modifier.weight(1f)
 						)
 					}
@@ -97,19 +79,11 @@ fun AddOrderScreen(
 					showCustomerDialog = true
 				}
 			}
-			
-			if (showCustomerDialog) {
-				CustomerDialog(
-					viewModel = customerViewModel,
-					onDismiss = { showCustomerDialog = false },
-					selectedCustomer = selectedCustomer
-				)
-			}
-			
 			Card(
 				modifier = Modifier
 					.fillMaxWidth()
-					.padding(8.dp),
+					.padding(8.dp)
+					.weight(8f),
 				elevation = CardDefaults.cardElevation(4.dp)
 			) {
 				Column(modifier = Modifier.padding(8.dp)) {
@@ -144,26 +118,27 @@ fun AddOrderScreen(
 				}
 			}
 			
-			if (showProductsDialog) {
-				ProductDialog(
-					viewModel = productViewModel,
-					onDismiss = { showProductsDialog = false },
-					selectedProducts = selectedProducts,
-					onSave = { selectedProducts = it as SnapshotStateList<Product> }
-				)
-			}
 			Row(
 				modifier = Modifier
 					.fillMaxWidth()
-					.padding(2.dp),
-				horizontalArrangement = Arrangement.Center
+					.padding(2.dp)
+					.weight(1f),
+				horizontalArrangement = Arrangement.SpaceBetween
 			) {
 				Button(
-					enabled = selectedCustomer.customerName != null && selectedProducts.isNotEmpty(),
+					onClick = {
+						navController.navigate(NAVIGATION_SCREEN_ORDER_LIST)
+					},
+					modifier = Modifier
+						.padding(5.dp)
+						.weight(1f)
+				) { Text("Cancel", style = TextStyle(fontSize = 20.sp)) }
+				Button(
+					enabled = selectedProducts.isNotEmpty(),
 					onClick = {
 						val order =
 							Order(
-								customer = selectedCustomer,
+								customerId = selectedCustomerId.value,
 								productList = selectedProducts,
 								orderDate = System.currentTimeMillis()
 							)
@@ -172,10 +147,27 @@ fun AddOrderScreen(
 					},
 					modifier = Modifier
 						.padding(5.dp)
-						.fillMaxWidth()
+						.weight(1f)
 				) { Text("Save", style = TextStyle(fontSize = 20.sp)) }
 			}
 			
+		}
+		
+		if (showProductsDialog) {
+			ProductDialog(
+				viewModel = productViewModel,
+				onDismiss = { showProductsDialog = false },
+				selectedProducts = selectedProducts,
+				onSave = { selectedProducts = it as SnapshotStateList<Product> }
+			)
+		}
+		
+		if (showCustomerDialog) {
+			CustomerDialog(
+				viewModel = customerViewModel,
+				onDismiss = { showCustomerDialog = false },
+				onSelectedCustomerId = { selectedCustomerId.value = it }
+			)
 		}
 	}
 	

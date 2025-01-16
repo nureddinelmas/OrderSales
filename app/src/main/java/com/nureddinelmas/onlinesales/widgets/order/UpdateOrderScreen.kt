@@ -106,7 +106,6 @@ fun ProductCard(product: Product, onProductUpdated: (Product) -> Unit) {
 				Text("Update Product")
 			}
 			
-			// Add a delete button if needed
 			Button(onClick = { /* Handle product deletion */ }) {
 				Text("Delete")
 			}

@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.google.firebase.firestore.DocumentId
 import com.nureddinelmas.onlinesales.models.Customer
 import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 
@@ -25,7 +26,7 @@ import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 fun CustomerDialog(
 	viewModel: CustomerViewModel,
 	onDismiss: () -> Unit,
-	selectedCustomer: Customer = Customer()
+	onSelectedCustomerId: (selectedCustomerId: String) -> Unit,
 ) {
 	val customer by viewModel.uiState.collectAsState()
 	Dialog(onDismissRequest = onDismiss) {
@@ -45,12 +46,7 @@ fun CustomerDialog(
 							Text(text = customer.customerName ?: "")
 							Button(
 								onClick = {
-									selectedCustomer.customerName = customer.customerName
-									selectedCustomer.customerTel = customer.customerTel
-									selectedCustomer.customerAddress = customer.customerAddress
-									selectedCustomer.customerCity = customer.customerCity
-									selectedCustomer.customerCountry = customer.customerCountry
-									selectedCustomer.customerEmail = customer.customerEmail
+									onSelectedCustomerId(customer.customerId!!)
 									onDismiss()
 								},
 								modifier = Modifier
