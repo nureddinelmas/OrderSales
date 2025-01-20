@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
@@ -130,7 +132,7 @@ fun ProductItems(
 				if (quantity > 0) quantity -= 0.5
 				onQuantityChange(quantity)
 			}) {
-				Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Decrease Quantity")
+				Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Decrease Quantity")
 			}
 			
 			Text(text = quantity.toString(), modifier = Modifier.padding(horizontal = 16.dp))
@@ -139,7 +141,7 @@ fun ProductItems(
 				quantity += 0.5
 				onQuantityChange(quantity)
 			}) {
-				Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Increase Quantity")
+				Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Increase Quantity")
 			}
 		}
 	}

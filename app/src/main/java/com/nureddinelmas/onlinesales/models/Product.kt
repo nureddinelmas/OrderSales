@@ -1,7 +1,9 @@
 package com.nureddinelmas.onlinesales.models
 
+import kotlinx.serialization.Serializable
 import java.util.UUID
 
+@Serializable
 data class Product(
 	val productId: String? = UUID.randomUUID().toString(),
 	val productName: String = "",

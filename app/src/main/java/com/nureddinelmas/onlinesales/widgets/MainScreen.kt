@@ -1,6 +1,5 @@
 package com.nureddinelmas.onlinesales.widgets
 
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import com.google.gson.Gson
 import androidx.compose.material.icons.Icons
@@ -26,11 +25,11 @@ import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_ORDER_LIST
 import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_UPDATE_ORDER
 import com.nureddinelmas.onlinesales.models.Customer
 import com.nureddinelmas.onlinesales.models.Order
+import com.nureddinelmas.onlinesales.models.Product
 import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
 import com.nureddinelmas.onlinesales.viewModel.ProductViewModel
 import com.nureddinelmas.onlinesales.widgets.customer.AddNewCustomerScreen
-import com.nureddinelmas.onlinesales.widgets.customer.CustomerItem
 import com.nureddinelmas.onlinesales.widgets.customer.CustomerListScreen
 import com.nureddinelmas.onlinesales.widgets.order.AddOrderScreen
 import com.nureddinelmas.onlinesales.widgets.order.OrderDetailsScreen
@@ -47,7 +46,7 @@ import java.nio.charset.StandardCharsets
 fun MainScreen(
 	orderViewModel: OrderViewModel,
 	productViewModel: ProductViewModel,
-	customerViewModel: CustomerViewModel
+	customerViewModel: CustomerViewModel,
 ) {
 	val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 	val navController = rememberNavController()
@@ -58,11 +57,9 @@ fun MainScreen(
 		drawerContent = { DrawerContent(navController, drawerState) },
 		drawerState = drawerState
 	) {
-		Log.w("!!!", "MainScreen shouldShowTopBar: $shouldShowTopBar")
-		Log.w("!!!", "MainScreen destination: ${navController.currentBackStackEntry?.destination?.route}")
 		Scaffold(
 			topBar = {
-			if (shouldShowTopBar.value)	TopAppBar(
+				if (shouldShowTopBar.value) TopAppBar(
 					title = { Text(currentTitle.value) },
 					navigationIcon = {
 						IconButton(onClick = {
@@ -83,7 +80,7 @@ fun MainScreen(
 			) {
 				composable(NAVIGATION_SCREEN_ORDER_LIST) {
 					currentTitle.value = "Order List"
-					OrderListScreen(orderViewModel, customerViewModel,navController)
+					OrderListScreen(orderViewModel, customerViewModel, navController)
 					shouldShowTopBar.value = true
 				}
 				composable("add") {
@@ -97,16 +94,28 @@ fun MainScreen(
 				}
 				composable("newProduct") {
 					currentTitle.value = "Add new product"
-					AddNewProductScreen(navController, productViewModel::addProduct)
+					AddNewProductScreen(
+						navController,
+						product = Product(),
+						false,
+						productViewModel,
+						productViewModel::addProduct
+					)
 				}
 				composable("productList") {
 					currentTitle.value = "Product List"
-					ProductListScreen(productViewModel)
+					ProductListScreen(productViewModel, navController)
 				}
 				
 				composable("newCustomer") {
 					currentTitle.value = "Add new customer"
-					AddNewCustomerScreen (navController, Customer(), customerViewModel, false, orderViewModel = orderViewModel){}
+					AddNewCustomerScreen(
+						navController,
+						Customer(),
+						customerViewModel,
+						false,
+						orderViewModel = orderViewModel
+					) {}
 				}
 				composable("customerList") {
 					currentTitle.value = "Customer List"
@@ -127,7 +136,13 @@ fun MainScreen(
 						URLDecoder.decode(orderJson, StandardCharsets.UTF_8.toString())
 					val order = Gson().fromJson(decodeOrderJson, Order::class.java)
 					currentTitle.value = "Order Details"
-					OrderDetailsScreen(order, productViewModel, orderViewModel,customerViewModel, navController)
+					OrderDetailsScreen(
+						order,
+						productViewModel,
+						orderViewModel,
+						customerViewModel,
+						navController
+					)
 					shouldShowTopBar.value = false
 				}
 			}

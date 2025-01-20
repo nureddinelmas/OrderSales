@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -67,7 +68,7 @@ fun OrderDetailsScreen(
 			title = { Text("Order Details") },
 			navigationIcon = {
 				IconButton(onClick = { navController.navigate(NAVIGATION_SCREEN_ORDER_LIST) }) {
-					Icon(Icons.Default.ArrowBack, contentDescription = "Back to Order List")
+					Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back to Order List")
 				}
 			}
 		)
@@ -139,7 +140,7 @@ fun OrderDetailsScreen(
 							Row(
 								modifier = Modifier
 									.fillMaxWidth()
-									.wrapContentHeight(),
+									.padding(horizontal = 4.dp),
 								horizontalArrangement = Arrangement.SpaceBetween
 							) {
 								Text(

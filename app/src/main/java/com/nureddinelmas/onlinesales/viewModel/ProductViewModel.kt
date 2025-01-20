@@ -27,7 +27,6 @@ class ProductViewModel(private val repository: Repository) : ViewModel() {
     }
 
     private fun loadProducts() {
-
         viewModelScope.launch {
             _uiState.value = ProductUiState(isLoading = true)
             repository.getProducts()
@@ -64,9 +63,24 @@ class ProductViewModel(private val repository: Repository) : ViewModel() {
         }
     }
 
-    fun deleteOrder(orderId: String) {
+    fun updateProduct(product: Product) {
         viewModelScope.launch {
-            repository.deleteOrder(orderId)
+            repository.updateProduct(product)
+                .onSuccess {
+                    loadProducts()
+                    Log.d("!!!", "OK updated orders")
+                }
+                .onFailure { throwable ->
+                    _uiState.value = ProductUiState(
+                        error =
+                        throwable.message ?: "Error updating order"
+                    )
+                }
+        }
+    }
+    fun deleteProduct(product: Product) {
+        viewModelScope.launch {
+            repository.deleteProduct(product.productId!!)
                 .onSuccess {
                     loadProducts()
                     Log.d("!!!", "OK deleted orders")
