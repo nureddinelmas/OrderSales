@@ -7,7 +7,7 @@ import java.util.UUID
 data class Product(
 	val productId: String? = UUID.randomUUID().toString(),
 	val productName: String = "",
-	val productPrice: String = "",
+	val productPrice: String = "0",
 	val productCurrency: String = "",
 	val productComment: String = "",
 	var productQuantity: Double = 0.0

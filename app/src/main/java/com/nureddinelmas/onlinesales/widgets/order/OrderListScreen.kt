@@ -129,7 +129,8 @@ fun OrderListScreen(
 //					Text("Print Orders")
 //				}
 				Text(
-					text = "Total Orders: ${uiState.orders.size} / Total Price: ${String.format("%.2f", uiState.orders.sumOf { it.totalPrice() })} ${uiState.orders[0].productList[0].productCurrency.uppercase()}",
+					text = "Total Orders: ${uiState.orders.size} / Total Price: ${String.format("%.2f", uiState.orders.sumOf {
+						if (it.productList.isEmpty()) 0.0 else it.totalPrice() })} ${uiState.orders[0].productList[0].productCurrency.uppercase()}",
 					modifier = Modifier
 						.fillMaxWidth()
 						.padding(8.dp),

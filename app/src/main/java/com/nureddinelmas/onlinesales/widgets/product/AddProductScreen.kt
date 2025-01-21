@@ -51,7 +51,7 @@ fun AddNewProductScreen(
 		)
 		OutlinedTextField(
 			value = productPrice.value,
-			onValueChange = { productPrice.value = it },
+			onValueChange = { productPrice.value = it.ifEmpty { "0" } },
 			label = { Text("Product Price") },
 			modifier = Modifier.padding(vertical = 4.dp)
 		)
@@ -145,7 +145,7 @@ fun AddNewProductScreen(
 					.padding(2.dp)
 					.fillMaxWidth()
 			) {
-				Text("Delete Customer")
+				Text("Delete Product")
 			}
 		}
 	}
