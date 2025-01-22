@@ -11,26 +11,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,12 +36,11 @@ import androidx.navigation.NavController
 import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_ORDER_LIST
 import com.nureddinelmas.onlinesales.models.Order
 import com.nureddinelmas.onlinesales.models.Product
+import com.nureddinelmas.onlinesales.models.getOrderProcessColor
 import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
 import com.nureddinelmas.onlinesales.viewModel.ProductViewModel
-import com.nureddinelmas.onlinesales.widgets.customer.AddNewCustomerScreen
 import com.nureddinelmas.onlinesales.widgets.product.ProductDialog
-import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,17 +53,20 @@ fun OrderDetailsScreen(
 ) {
 	var showProductsDialog by remember { mutableStateOf(false) }
 	var showShippingDialog by remember { mutableStateOf(false) }
-
+	
 	var currentOrder by remember { mutableStateOf(order) }
-
-	val currentCustomer by remember { mutableStateOf(customerViewModel.getCustomerById(order.customerId!!))   }
-
+	
+	val currentCustomer by remember { mutableStateOf(customerViewModel.getCustomerById(order.customerId!!)) }
+	
 	Column {
 		TopAppBar(
 			title = { Text("Order Details") },
 			navigationIcon = {
 				IconButton(onClick = { navController.navigate(NAVIGATION_SCREEN_ORDER_LIST) }) {
-					Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back to Order List")
+					Icon(
+						Icons.AutoMirrored.Filled.ArrowBack,
+						contentDescription = "Back to Order List"
+					)
 				}
 			}
 		)
@@ -168,59 +166,79 @@ fun OrderDetailsScreen(
 					}
 				}
 			}
-				Row(
-					modifier = Modifier
-						.fillMaxWidth()
-						.wrapContentHeight()
-						.padding(vertical = 8.dp, horizontal = 24.dp),
-					horizontalArrangement = Arrangement.End
-				) {
+			Row(
+				modifier = Modifier
+					.fillMaxWidth()
+					.wrapContentHeight()
+					.padding(vertical = 8.dp, horizontal = 24.dp),
+				horizontalArrangement = Arrangement.SpaceBetween
+			) {
+				Row {
 					Text(
-						text = "Shipping: ${
-							currentOrder.shipping.toString().uppercase()
-						} ${currentOrder.productList[0].productCurrency.uppercase()}",
+						text = "Process : ",
 						style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
-						textAlign = TextAlign.Center
+						textAlign = TextAlign.End
 					)
-				}
-				Row(
-					modifier = Modifier
-						.fillMaxWidth()
-						.wrapContentHeight()
-						.padding(vertical = 8.dp, horizontal = 24.dp),
-					horizontalArrangement = Arrangement.End
-				) {
 					Text(
-						text = "Total Price: ${currentOrder.totalPrice()} ${currentOrder.productList[0].productCurrency.uppercase()}",
-						style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
-						textAlign = TextAlign.Center
+						text = currentOrder.process.toString().uppercase(),
+						style = TextStyle(
+							fontSize = 18.sp,
+							fontWeight = FontWeight.Bold,
+							color = Color.White,
+							background = Color(getOrderProcessColor(currentOrder.process!!)),
+							letterSpacing = 1.sp
+						),
+						textAlign = TextAlign.Start,
 					)
 				}
 				
-				Row(
-					modifier = Modifier
-						.fillMaxWidth()
-						.wrapContentHeight()
-						.padding(vertical = 8.dp, horizontal = 4.dp),
-					horizontalArrangement = Arrangement.SpaceBetween,
-				) {
-					Button(onClick = {
-						showShippingDialog = true
-					}) {
-						Text("Update Shipping")
-					}
-					
-					AddButton(text = "Update Order") {
-						showProductsDialog = true
-					}
+				Text(
+					text = "Shipping: ${
+						currentOrder.shipping.toString().uppercase()
+					} ${currentOrder.productList[0].productCurrency.uppercase()}",
+					style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+					textAlign = TextAlign.Center
+				)
+			}
+			Row(
+				modifier = Modifier
+					.fillMaxWidth()
+					.wrapContentHeight()
+					.padding(vertical = 8.dp, horizontal = 24.dp),
+				horizontalArrangement = Arrangement.End
+			) {
+				Text(
+					text = "Total Price: ${currentOrder.totalPrice()} ${currentOrder.productList[0].productCurrency.uppercase()}",
+					style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+					textAlign = TextAlign.Center
+				)
+			}
+			
+			Row(
+				modifier = Modifier
+					.fillMaxWidth()
+					.wrapContentHeight()
+					.padding(vertical = 8.dp, horizontal = 4.dp),
+				horizontalArrangement = Arrangement.SpaceBetween,
+			) {
+				Button(onClick = {
+					showShippingDialog = true
+				}) {
+					Text("Update Shipping and Process")
+				}
+				
+				AddButton(text = "Update Order") {
+					showProductsDialog = true
 				}
 			}
+		}
 		
-		if (showShippingDialog) ShippingDialog(
+		if (showShippingDialog) ShippingAndProcessDialog(
 			order = currentOrder,
 			onDismiss = { showShippingDialog = false },
-			onSave = { shippingCost ->
-				val updatedOrder = currentOrder.copy(shipping = shippingCost)
+			onSave = { shippingCost, selectedProcess ->
+				val updatedOrder =
+					currentOrder.copy(shipping = shippingCost, process = selectedProcess)
 				currentOrder = updatedOrder
 				orderViewModel.updateOrder(updatedOrder)
 			}

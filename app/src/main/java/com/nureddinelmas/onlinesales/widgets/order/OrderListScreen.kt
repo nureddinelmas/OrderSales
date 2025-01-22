@@ -5,29 +5,39 @@ import android.content.Context
 import android.print.PrintManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +49,7 @@ import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.nureddinelmas.onlinesales.ViewPrintAdapter
 import com.nureddinelmas.onlinesales.models.Order
+import com.nureddinelmas.onlinesales.models.getOrderProcessColor
 import com.nureddinelmas.onlinesales.ui.theme.OnlineSalesTheme
 import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
@@ -53,7 +64,8 @@ fun OrderListScreen(
 	navController: NavController
 ) {
 	val uiState by orderViewModel.uiState.collectAsState()
-	
+	var showDialog by remember { mutableStateOf(false) }
+	var currentOrder by remember { mutableStateOf(Order()) }
 	when {
 		uiState.isLoading -> {
 			Box(
@@ -76,20 +88,39 @@ fun OrderListScreen(
 		
 		
 		uiState.orders.isNotEmpty() -> {
-			Column {
-//				val context = navController.context
-//				 val orderListView = ComposeView(context).apply {
-//					 setContent {
-				
-				LazyColumn(
-					modifier = Modifier
-						.fillMaxSize()
-						.background(color = Color(0xFFF0F0F0))
-						.weight(10f)
-				) {
-					items(
-						items = uiState.orders,
-						key = { UUID.randomUUID().toString() }) { order ->
+			LazyColumn(
+				modifier = Modifier
+					.fillMaxWidth()
+					.background(Color(0xFFF0F0F0))
+			) {
+				items(
+					items = uiState.orders,
+					key = { it.orderId!! }
+				) { order ->
+					var offsetX by remember { mutableFloatStateOf(0f) }
+					val maxOffset = 900f
+					Box(
+						modifier = Modifier
+							.fillMaxWidth()
+							.offset { androidx.compose.ui.unit.IntOffset(offsetX.toInt(), 0) }
+							.background(if (offsetX < -100f) Color.Red else Color.White)
+							.shadow(4.dp)
+							.pointerInput(Unit) {
+								detectHorizontalDragGestures(
+									onDragEnd = {
+										
+										if (offsetX < -maxOffset / 2) {
+											currentOrder = order
+											showDialog = true
+										}
+										offsetX = 0f
+									},
+									onHorizontalDrag = { _, dragAmount ->
+										offsetX = (offsetX + dragAmount).coerceIn(-maxOffset, 0f)
+									}
+								)
+							},
+					) {
 						if (order.totalQuantity() != 0.0) OrderItem(
 							order,
 							onUpdateClick = {
@@ -111,31 +142,11 @@ fun OrderListScreen(
 								navController.navigate("details/${encodedOrderJson}")
 								
 							},
-							customerName = customerViewModel.getCustomerById(order.customerId!!)?.customerName ?: "")
+							customerName = customerViewModel.getCustomerById(order.customerId!!)?.customerName
+								?: ""
+						)
 					}
 				}
-//					 }
-//				}
-
-//				Button(
-//					modifier = Modifier.fillMaxWidth(),
-//					onClick = {
-//					val printManager =
-//						navController.context.getSystemService(Context.PRINT_SERVICE) as PrintManager
-//					val printAdapter = ViewPrintAdapter(navController.context, orderListView)
-//					printManager.print("Order List", printAdapter, null)
-//				}) {
-//					Text("Print Orders")
-//				}
-				Text(
-					text = "Total Orders: ${uiState.orders.size} / Total Price: ${String.format("%.2f", uiState.orders.sumOf {
-						if (it.productList.isEmpty()) 0.0 else it.totalPrice() })} ${uiState.orders[0].productList[0].productCurrency.uppercase()}",
-					modifier = Modifier
-						.fillMaxWidth()
-						.padding(8.dp),
-					textAlign = TextAlign.Center,
-					style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
-				)
 			}
 		}
 		
@@ -148,6 +159,33 @@ fun OrderListScreen(
 			}
 		}
 	}
+	
+	if (showDialog) {
+		AlertDialog(
+			onDismissRequest = { showDialog = false },
+			title = { Text(text = "Confirmation") },
+			text = { Text("Are you sure you want to delete this order?") },
+			confirmButton = {
+				Button(
+					onClick = {
+						orderViewModel.deleteOrder(currentOrder.orderId!!)
+						showDialog = false
+					},
+					modifier = Modifier.padding(horizontal = 15.dp, vertical = 5.dp)
+				) {
+					Text("Yes")
+				}
+			},
+			dismissButton = {
+				Button(
+					onClick = { showDialog = false },
+					modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
+				) {
+					Text("No")
+				}
+			}
+		)
+	}
 }
 
 
@@ -157,37 +195,37 @@ fun OrderItem(order: Order, onClick: () -> Unit, onUpdateClick: () -> Unit, cust
 	
 	Card(
 		modifier = Modifier
-			.fillMaxWidth()
-			.padding(8.dp),
+			.padding(8.dp)
+			.fillMaxWidth(),
 		elevation = CardDefaults.cardElevation(4.dp)
 	) {
 		Column(modifier = Modifier
 			.clickable { onClick() }
-			.padding(8.dp)) {
+			.padding(8.dp),) {
 			Row(
 				modifier = Modifier
 					.fillMaxWidth()
-					.padding(vertical = 8.dp),
+					.padding(vertical = 2.dp),
 				horizontalArrangement = Arrangement.SpaceBetween
 			) {
 				Text(
 					text = "Customer Name",
 					modifier = Modifier
-						.padding(vertical = 4.dp)
+						.padding(vertical = 1.dp)
 						.weight(1.5f),
 					textAlign = TextAlign.Start
 				)
 				Text(
 					text = "Quantity",
 					modifier = Modifier
-						.padding(vertical = 4.dp)
+						.padding(vertical = 1.dp)
 						.weight(1f),
 					textAlign = TextAlign.Center
 				)
 				Text(
 					text = "Price",
 					modifier = Modifier
-						.padding(vertical = 4.dp)
+						.padding(vertical = 1.dp)
 						.weight(1f),
 					textAlign = TextAlign.Center
 				)
@@ -195,42 +233,63 @@ fun OrderItem(order: Order, onClick: () -> Unit, onUpdateClick: () -> Unit, cust
 			Row(
 				modifier = Modifier
 					.fillMaxWidth()
-					.padding(vertical = 8.dp),
+					.padding(vertical = 2.dp),
 				horizontalArrangement = Arrangement.SpaceBetween
 			) {
 				Text(
 					text = customerName.uppercase(),
 					modifier = Modifier
-						.padding(vertical = 4.dp)
+						.padding(vertical = 1.dp)
 						.weight(1.5f),
 					textAlign = TextAlign.Start
 				)
 				
 				Text(
-					text = "${order.totalQuantity()}",
+					text = "${order.totalQuantity()} kg",
 					modifier = Modifier
-						.padding(vertical = 4.dp)
+						.padding(vertical = 1.dp)
 						.weight(1f),
 					textAlign = TextAlign.Center
 				)
 				
 				Text(
-					text = String.format("%.2f  %s", order.totalPrice(), order.productList[0].productCurrency.uppercase()),
+					text = String.format(
+						"%.2f  %s",
+						order.totalPrice(),
+						order.productList[0].productCurrency.uppercase()
+					),
 					modifier = Modifier
-						.padding(vertical = 4.dp)
+						.padding(vertical = 1.dp)
 						.weight(1f),
 					textAlign = TextAlign.Center
 				)
-				
+			}
+			Box(
+				modifier = Modifier
+					.padding(4.dp)
+					.fillMaxWidth(),
+				contentAlignment = Alignment.BottomEnd
+			) {
+				Row {
+					Text(
+						text = "Process : ",
+						style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Normal, letterSpacing = 3.sp),
+						textAlign = TextAlign.End
+					)
+					Text(
+						text = order.process.toString().uppercase(),
+						style = TextStyle(
+							fontSize = 16.sp,
+							fontWeight = FontWeight.Bold,
+							color = Color.White,
+							background = Color(getOrderProcessColor(order.process!!)),
+							letterSpacing = 1.sp
+						),
+						textAlign = TextAlign.Start,
+					)
+				}
 			}
 			
-			HorizontalDivider(
-				thickness = 1.dp,
-				color = Color.Gray,
-				modifier = Modifier
-					.padding(vertical = 8.dp)
-					.weight(2f)
-			)
 		}
 	}
 }

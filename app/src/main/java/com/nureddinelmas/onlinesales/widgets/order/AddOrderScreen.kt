@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_ORDER_LIST
-import com.nureddinelmas.onlinesales.models.Customer
 import com.nureddinelmas.onlinesales.models.Order
+import com.nureddinelmas.onlinesales.models.OrderProcess
 import com.nureddinelmas.onlinesales.models.Product
 import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
@@ -140,7 +140,8 @@ fun AddOrderScreen(
 							Order(
 								customerId = selectedCustomerId.value,
 								productList = selectedProducts,
-								orderDate = System.currentTimeMillis()
+								orderDate = System.currentTimeMillis(),
+								process = OrderProcess.ORDERED
 							)
 						orderViewModel.addOrder(order)
 						navController.navigate(NAVIGATION_SCREEN_ORDER_LIST)
