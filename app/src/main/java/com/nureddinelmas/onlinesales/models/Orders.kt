@@ -13,6 +13,7 @@ data class Order(
 	var productList: List<Product> = listOf(),
 	var shipping: Double = 0.0,
 	var process: OrderProcess? = OrderProcess.ORDERED,
+	var isArkived: Boolean = false
 ) {
 	fun totalPrice(): Double {
 		return productList.sumOf { it.productPrice.toDouble() * it.productQuantity } + shipping

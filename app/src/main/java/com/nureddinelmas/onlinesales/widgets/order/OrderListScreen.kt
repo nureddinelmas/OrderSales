@@ -1,8 +1,6 @@
 package com.nureddinelmas.onlinesales.widgets.order
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.print.PrintManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -14,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
@@ -22,12 +19,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -38,23 +32,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.gson.Gson
-import com.nureddinelmas.onlinesales.ViewPrintAdapter
 import com.nureddinelmas.onlinesales.models.Order
 import com.nureddinelmas.onlinesales.models.getOrderProcessColor
-import com.nureddinelmas.onlinesales.ui.theme.OnlineSalesTheme
 import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
 import java.nio.charset.StandardCharsets
-import java.util.UUID
 
 @SuppressLint("DefaultLocale")
 @Composable
@@ -64,7 +54,8 @@ fun OrderListScreen(
 	navController: NavController
 ) {
 	val uiState by orderViewModel.uiState.collectAsState()
-	var showDialog by remember { mutableStateOf(false) }
+	var showDialogDelete by remember { mutableStateOf(false) }
+	var showDialogArkive by remember { mutableStateOf(false) }
 	var currentOrder by remember { mutableStateOf(Order()) }
 	when {
 		uiState.isLoading -> {
@@ -88,66 +79,97 @@ fun OrderListScreen(
 		
 		
 		uiState.orders.isNotEmpty() -> {
-			LazyColumn(
-				modifier = Modifier
-					.fillMaxWidth()
-					.background(Color(0xFFF0F0F0))
-			) {
-				items(
-					items = uiState.orders,
-					key = { it.orderId!! }
-				) { order ->
-					var offsetX by remember { mutableFloatStateOf(0f) }
-					val maxOffset = 900f
-					Box(
-						modifier = Modifier
-							.fillMaxWidth()
-							.offset { androidx.compose.ui.unit.IntOffset(offsetX.toInt(), 0) }
-							.background(if (offsetX < -100f) Color.Red else Color.White)
-							.shadow(4.dp)
-							.pointerInput(Unit) {
-								detectHorizontalDragGestures(
-									onDragEnd = {
-										
-										if (offsetX < -maxOffset / 2) {
-											currentOrder = order
-											showDialog = true
-										}
-										offsetX = 0f
-									},
-									onHorizontalDrag = { _, dragAmount ->
-										offsetX = (offsetX + dragAmount).coerceIn(-maxOffset, 0f)
-									}
-								)
-							},
-					) {
-						if (order.totalQuantity() != 0.0) OrderItem(
-							order,
-							onUpdateClick = {
-								val gson = Gson()
-								val orderJson = gson.toJson(order)
-								val encodedOrderJson = java.net.URLEncoder.encode(
-									orderJson,
-									StandardCharsets.UTF_8.toString()
-								)
-								navController.navigate("update/${encodedOrderJson}")
-							},
-							onClick = {
-								val gson = Gson()
-								val orderJson = gson.toJson(order)
-								val encodedOrderJson = java.net.URLEncoder.encode(
-									orderJson,
-									StandardCharsets.UTF_8.toString()
-								)
-								navController.navigate("details/${encodedOrderJson}")
-								
-							},
-							customerName = customerViewModel.getCustomerById(order.customerId!!)?.customerName
-								?: ""
-						)
+			Column {
+				LazyColumn(
+					modifier = Modifier
+						.fillMaxWidth()
+						.background(Color(0xFFF0F0F0))
+						.weight(16f)
+				) {
+					items(
+						items = orderViewModel.onlyNotArkivedOrders(),
+						key = { it.orderId!! }
+					) { order ->
+						var offsetX by remember { mutableFloatStateOf(0f) }
+						val maxOffset = 900f
+						Box(
+							modifier = Modifier
+								.fillMaxWidth()
+								.offset { IntOffset(offsetX.toInt(), 0) }
+								.background(if (offsetX < -100f) Color.Red else if (offsetX > 100f) Color.Green else Color.White)
+								.shadow(4.dp)
+								.pointerInput(Unit) {
+									detectHorizontalDragGestures(
+										onDragEnd = {
+											if (offsetX < -maxOffset / 2) {
+												currentOrder = order
+												showDialogDelete = true
+											} else if (offsetX > maxOffset / 2) {
+												currentOrder = order
+												showDialogArkive = true
+											}
+											offsetX = 0f
+										},
+										onHorizontalDrag = { _, dragAmount ->
+											offsetX = (offsetX + dragAmount).coerceIn(
+												-maxOffset,
+												maxOffset
+											)
+										},
+									)
+								}
+						) {
+							if (order.totalQuantity() != 0.0) OrderItem(
+								order,
+								onUpdateClick = {
+									val gson = Gson()
+									val orderJson = gson.toJson(order)
+									val encodedOrderJson = java.net.URLEncoder.encode(
+										orderJson,
+										StandardCharsets.UTF_8.toString()
+									)
+									navController.navigate("update/${encodedOrderJson}")
+								},
+								onClick = {
+									val gson = Gson()
+									val orderJson = gson.toJson(order)
+									val encodedOrderJson = java.net.URLEncoder.encode(
+										orderJson,
+										StandardCharsets.UTF_8.toString()
+									)
+									navController.navigate("details/${encodedOrderJson}")
+									
+								},
+								customerName = customerViewModel.getCustomerById(order.customerId!!)?.customerName
+									?: ""
+							)
+						}
 					}
 				}
+				Row(
+					modifier = Modifier
+						.fillMaxWidth()
+						.background(Color(0xFFF0F0F0))
+						.weight(1f),
+					horizontalArrangement = Arrangement.SpaceBetween,
+					verticalAlignment = Alignment.CenterVertically
+				) {
+					Text(
+						text = "Total Orders: ${orderViewModel.onlyNotArkivedOrders().size}",
+						modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp),
+					)
+					Text(
+						text = "Total Price: " + String.format(
+							"%.2f  %s",
+							orderViewModel.getTotalPrice(),
+							uiState.orders[0].productList[0].productCurrency.uppercase()
+						),
+						modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp),
+					)
+				}
+				
 			}
+			
 		}
 		
 		uiState.orders.isEmpty() -> {
@@ -160,34 +182,28 @@ fun OrderListScreen(
 		}
 	}
 	
-	if (showDialog) {
-		AlertDialog(
-			onDismissRequest = { showDialog = false },
-			title = { Text(text = "Confirmation") },
-			text = { Text("Are you sure you want to delete this order?") },
-			confirmButton = {
-				Button(
-					onClick = {
-						orderViewModel.deleteOrder(currentOrder.orderId!!)
-						showDialog = false
-					},
-					modifier = Modifier.padding(horizontal = 15.dp, vertical = 5.dp)
-				) {
-					Text("Yes")
-				}
-			},
-			dismissButton = {
-				Button(
-					onClick = { showDialog = false },
-					modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
-				) {
-					Text("No")
-				}
-			}
+	if (showDialogDelete) {
+		AlertDialogCustom(
+			onAlertDialog = { showDialogDelete = false },
+			orderViewModel = orderViewModel,
+			currentOrder = currentOrder,
+			title = "Delete Order",
+			body = "Are you sure you want to delete this order?",
+			onYesButtonClick = { orderViewModel.deleteOrder(currentOrder.orderId!!) }
+		)
+	}
+	
+	if (showDialogArkive) {
+		AlertDialogCustom(
+			onAlertDialog = { showDialogArkive = false },
+			orderViewModel = orderViewModel,
+			currentOrder = currentOrder,
+			title = "Arkive Order",
+			body = "Are you sure you want to arkive this order?",
+			onYesButtonClick = { orderViewModel.updateOrder(currentOrder.copy(isArkived = true)) }
 		)
 	}
 }
-
 
 @SuppressLint("DefaultLocale")
 @Composable
@@ -199,9 +215,11 @@ fun OrderItem(order: Order, onClick: () -> Unit, onUpdateClick: () -> Unit, cust
 			.fillMaxWidth(),
 		elevation = CardDefaults.cardElevation(4.dp)
 	) {
-		Column(modifier = Modifier
-			.clickable { onClick() }
-			.padding(8.dp),) {
+		Column(
+			modifier = Modifier
+				.clickable { onClick() }
+				.padding(8.dp),
+		) {
 			Row(
 				modifier = Modifier
 					.fillMaxWidth()
@@ -273,7 +291,11 @@ fun OrderItem(order: Order, onClick: () -> Unit, onUpdateClick: () -> Unit, cust
 				Row {
 					Text(
 						text = "Process : ",
-						style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Normal, letterSpacing = 3.sp),
+						style = TextStyle(
+							fontSize = 18.sp,
+							fontWeight = FontWeight.Normal,
+							letterSpacing = 3.sp
+						),
 						textAlign = TextAlign.End
 					)
 					Text(
@@ -292,4 +314,39 @@ fun OrderItem(order: Order, onClick: () -> Unit, onUpdateClick: () -> Unit, cust
 			
 		}
 	}
+}
+
+@Composable
+fun AlertDialogCustom(
+	onAlertDialog: () -> Unit,
+	orderViewModel: OrderViewModel,
+	currentOrder: Order,
+	title: String,
+	body: String,
+	onYesButtonClick: () -> Unit
+) {
+	AlertDialog(
+		onDismissRequest = { onAlertDialog() },
+		title = { Text(text = title) },
+		text = { Text(body) },
+		confirmButton = {
+			Button(
+				onClick = {
+					onYesButtonClick()
+					onAlertDialog()
+				},
+				modifier = Modifier.padding(horizontal = 15.dp, vertical = 5.dp)
+			) {
+				Text("Yes")
+			}
+		},
+		dismissButton = {
+			Button(
+				onClick = { onAlertDialog() },
+				modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
+			) {
+				Text("No")
+			}
+		}
+	)
 }

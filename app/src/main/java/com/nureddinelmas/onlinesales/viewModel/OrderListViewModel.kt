@@ -75,19 +75,7 @@ class OrderViewModel(private val repository: Repository) : ViewModel() {
                 }
         }
     }
-
-
-    fun checkCustomerExistInOrders(customerId: String): Boolean = run {
-        _uiState.value.orders.forEach { order ->
-            if (order.customerId == customerId) {
-                Log.d("!!!", "Customer exist in orders")
-                return@run true
-            }
-        }
-     false
-    }
-
-
+    
     fun deleteOrder(orderId: String) {
         viewModelScope.launch {
             repository.deleteOrder(orderId)
@@ -100,5 +88,27 @@ class OrderViewModel(private val repository: Repository) : ViewModel() {
                         OrderUiState(error = throwable.message ?: "Error deleting order")
                 }
         }
+    }
+    
+    fun checkCustomerExistInOrders(customerId: String): Boolean = run {
+        _uiState.value.orders.forEach { order ->
+            if (order.customerId == customerId) {
+                Log.d("!!!", "Customer exist in orders")
+                return@run true
+            }
+        }
+        false
+    }
+    
+    fun getTotalPrice(): Double {
+        var total = 0.0
+        onlyNotArkivedOrders().forEach { order ->
+            total += order.totalPrice()
+        }
+        return total
+    }
+    
+    fun onlyNotArkivedOrders(): List<Order> {
+        return _uiState.value.orders.filter { !it.isArkived }
     }
 }
