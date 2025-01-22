@@ -80,6 +80,7 @@ fun OrderListScreen(
 //				val context = navController.context
 //				 val orderListView = ComposeView(context).apply {
 //					 setContent {
+				
 				LazyColumn(
 					modifier = Modifier
 						.fillMaxSize()
@@ -110,9 +111,7 @@ fun OrderListScreen(
 								navController.navigate("details/${encodedOrderJson}")
 								
 							},
-							customerName = customerViewModel.getCustomerById(order.customerId!!)?.customerName
-								?: ""
-						)
+							customerName = customerViewModel.getCustomerById(order.customerId!!)?.customerName ?: "")
 					}
 				}
 //					 }

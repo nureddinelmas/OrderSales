@@ -69,13 +69,11 @@ fun ProductListScreen(productViewModel: ProductViewModel, navController: NavCont
 					Column(
 						modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp)
 					) {
-						
-						
 						Row {
 							Text(
 								text = "Product name",
 								modifier = Modifier
-									.padding(vertical = 4.dp)
+									.padding(vertical = 4.dp, horizontal = 8.dp)
 									.weight(1f),
 								textAlign = TextAlign.Start
 							)

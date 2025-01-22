@@ -44,28 +44,28 @@ fun AddNewProductScreen(
 			.padding(16.dp)
 	) {
 		OutlinedTextField(
-			value = productName.value,
+			value = productName.value.replaceFirstChar { it.uppercase() },
 			onValueChange = { productName.value = it },
 			label = { Text("Product Name") },
-			modifier = Modifier.padding(vertical = 4.dp)
+			modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth()
 		)
 		OutlinedTextField(
 			value = productPrice.value,
 			onValueChange = { productPrice.value = it.ifEmpty { "0" } },
 			label = { Text("Product Price") },
-			modifier = Modifier.padding(vertical = 4.dp)
+			modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth()
 		)
 		OutlinedTextField(
-			value = productCurrency.value,
+			value = productCurrency.value.uppercase(),
 			onValueChange = { productCurrency.value = it },
 			label = { Text("Product Currency") },
-			modifier = Modifier.padding(vertical = 4.dp)
+			modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth()
 		)
 		OutlinedTextField(
 			value = productComment.value,
 			onValueChange = { productComment.value = it },
 			label = { Text("Product Comment") },
-			modifier = Modifier.padding(vertical = 4.dp)
+			modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth()
 		)
 		Row(
 			modifier = Modifier
