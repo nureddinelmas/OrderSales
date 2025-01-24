@@ -14,11 +14,15 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -32,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,8 +45,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.gson.Gson
+import com.nureddinelmas.onlinesales.helper.toSekFormat
 import com.nureddinelmas.onlinesales.models.Order
 import com.nureddinelmas.onlinesales.models.getOrderProcessColor
+import com.nureddinelmas.onlinesales.print.createAndShareAllOrders
+import com.nureddinelmas.onlinesales.print.createAndShareOrderPdf
 import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
 import java.nio.charset.StandardCharsets
@@ -55,8 +63,9 @@ fun OrderListScreen(
 ) {
 	val uiState by orderViewModel.uiState.collectAsState()
 	var showDialogDelete by remember { mutableStateOf(false) }
-	var showDialogArkive by remember { mutableStateOf(false) }
+	var showDialogArchive by remember { mutableStateOf(false) }
 	var currentOrder by remember { mutableStateOf(Order()) }
+	val context = LocalContext.current
 	when {
 		uiState.isLoading -> {
 			Box(
@@ -106,7 +115,7 @@ fun OrderListScreen(
 												showDialogDelete = true
 											} else if (offsetX > maxOffset / 2) {
 												currentOrder = order
-												showDialogArkive = true
+												showDialogArchive = true
 											}
 											offsetX = 0f
 										},
@@ -150,7 +159,7 @@ fun OrderListScreen(
 					modifier = Modifier
 						.fillMaxWidth()
 						.background(Color(0xFFF0F0F0))
-						.weight(1f),
+						.weight(1f).padding(horizontal = 4.dp),
 					horizontalArrangement = Arrangement.SpaceBetween,
 					verticalAlignment = Alignment.CenterVertically
 				) {
@@ -159,13 +168,17 @@ fun OrderListScreen(
 						modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp),
 					)
 					Text(
-						text = "Total Price: " + String.format(
-							"%.2f  %s",
-							orderViewModel.getTotalPrice(),
-							uiState.orders[0].productList[0].productCurrency.uppercase()
-						),
+						text = "Total Price: " + orderViewModel.getTotalPrice().toSekFormat(uiState.orders[0].productList[0].productCurrency.uppercase()),
 						modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp),
 					)
+					IconButton (onClick = {
+						createAndShareAllOrders(context = context, orders = orderViewModel.onlyNotArkivedOrders())
+					}){
+						Icon(
+							imageVector = Icons.Default.Share,
+							contentDescription = "Share Order"
+						)
+					}
 				}
 				
 			}
@@ -193,14 +206,14 @@ fun OrderListScreen(
 		)
 	}
 	
-	if (showDialogArkive) {
+	if (showDialogArchive) {
 		AlertDialogCustom(
-			onAlertDialog = { showDialogArkive = false },
+			onAlertDialog = { showDialogArchive = false },
 			orderViewModel = orderViewModel,
 			currentOrder = currentOrder,
-			title = "Arkive Order",
-			body = "Are you sure you want to arkive this order?",
-			onYesButtonClick = { orderViewModel.updateOrder(currentOrder.copy(isArkived = true)) }
+			title = "Archive Order",
+			body = "Are you sure you want to archive this order?",
+			onYesButtonClick = { orderViewModel.updateOrder(currentOrder.copy(isArchived = true)) }
 		)
 	}
 }

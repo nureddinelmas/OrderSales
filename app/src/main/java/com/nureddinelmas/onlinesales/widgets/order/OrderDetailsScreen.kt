@@ -1,7 +1,6 @@
 package com.nureddinelmas.onlinesales.widgets.order
 
 import android.util.Log
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_ORDER_LIST
+import com.nureddinelmas.onlinesales.print.createAndShareOrderPdf
+import com.nureddinelmas.onlinesales.helper.toSekFormat
 import com.nureddinelmas.onlinesales.models.Order
 import com.nureddinelmas.onlinesales.models.Product
 import com.nureddinelmas.onlinesales.models.getOrderProcessColor
@@ -58,7 +61,7 @@ fun OrderDetailsScreen(
 	var showShippingDialog by remember { mutableStateOf(false) }
 	
 	var currentOrder by remember { mutableStateOf(order) }
-	
+	val context = LocalContext.current
 	val currentCustomer by remember { mutableStateOf(customerViewModel.getCustomerById(order.customerId!!)) }
 	
 	Column {
@@ -69,6 +72,15 @@ fun OrderDetailsScreen(
 					Icon(
 						Icons.AutoMirrored.Filled.ArrowBack,
 						contentDescription = "Back to Order List"
+					)
+				}
+			}, actions = {
+				IconButton (onClick = {
+					createAndShareOrderPdf(context = context, order = currentOrder, customer = currentCustomer!!)
+				}){
+					Icon(
+						imageVector = Icons.Default.Share,
+						contentDescription = "Share Order"
 					)
 				}
 			}
@@ -85,12 +97,11 @@ fun OrderDetailsScreen(
 					Text(
 						text = "Customer :",
 						style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
-						modifier = Modifier.padding(vertical = 8.dp)
+						modifier = Modifier.padding(vertical = 4.dp)
 					)
 					Text(text = "Name:   ${currentCustomer?.customerName}")
 					Text(text = "Address:   ${currentCustomer?.customerAddress}")
-					Text(text = "City:   ${currentCustomer?.customerCity}")
-					Text(text = "Country:   ${currentCustomer?.customerCountry}")
+					Text(text = "City:   ${currentCustomer?.customerCity} / ${currentCustomer?.customerCountry}")
 					Text(text = "Tel:   ${currentCustomer?.customerTel}")
 					Text(text = "Email:   ${currentCustomer?.customerEmail}")
 				}
@@ -100,7 +111,7 @@ fun OrderDetailsScreen(
 				modifier = Modifier
 					.fillMaxWidth()
 					.padding(8.dp)
-					.weight(3f),
+					.weight(4f),
 				elevation = CardDefaults.cardElevation(4.dp)
 			) {
 				Row(
@@ -158,8 +169,7 @@ fun OrderDetailsScreen(
 									textAlign = TextAlign.Center
 								)
 								Text(
-									text = product.totalPrice()
-										.toString() + " ${product.productCurrency.uppercase()}",
+									text = product.totalPrice().toSekFormat(product.productCurrency.uppercase()),
 									modifier = Modifier
 										.weight(1f)
 										.padding(vertical = 4.dp)
@@ -194,11 +204,8 @@ fun OrderDetailsScreen(
 						textAlign = TextAlign.Start,
 					)
 				}
-				
 				Text(
-					text = "Shipping: ${
-						currentOrder.shipping.toString().uppercase()
-					} ${currentOrder.productList[0].productCurrency.uppercase()}",
+					text = "Shipping: ${currentOrder.shipping.toSekFormat(currentOrder.productList[0].productCurrency.uppercase())}",
 					style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
 					textAlign = TextAlign.Center
 				)
@@ -211,7 +218,7 @@ fun OrderDetailsScreen(
 				horizontalArrangement = Arrangement.End
 			) {
 				Text(
-					text = "Total Price: ${currentOrder.totalPrice()} ${currentOrder.productList[0].productCurrency.uppercase()}",
+					text = "Total Price: ${currentOrder.totalPrice().toSekFormat(currentOrder.productList[0].productCurrency.uppercase())}",
 					style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
 					textAlign = TextAlign.Center
 				)

@@ -5,8 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nureddinelmas.onlinesales.models.Order
 import com.nureddinelmas.onlinesales.repository.Repository
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -109,6 +107,6 @@ class OrderViewModel(private val repository: Repository) : ViewModel() {
     }
     
     fun onlyNotArkivedOrders(): List<Order> {
-        return _uiState.value.orders.filter { !it.isArkived }
+        return _uiState.value.orders.filter { !it.isArchived }
     }
 }
