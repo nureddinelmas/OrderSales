@@ -46,10 +46,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.nureddinelmas.onlinesales.helper.toSekFormat
+import com.nureddinelmas.onlinesales.helper.totalQuantity
 import com.nureddinelmas.onlinesales.models.Order
 import com.nureddinelmas.onlinesales.models.getOrderProcessColor
 import com.nureddinelmas.onlinesales.print.createAndShareAllOrders
-import com.nureddinelmas.onlinesales.print.createAndShareOrderPdf
 import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
 import java.nio.charset.StandardCharsets
@@ -164,14 +164,11 @@ fun OrderListScreen(
 					verticalAlignment = Alignment.CenterVertically
 				) {
 					Text(
-						text = "Total Orders: ${orderViewModel.onlyNotArkivedOrders().size}",
-						modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp),
+						text = "Total : ${orderViewModel.onlyNotArkivedOrders().size} pcs. / " + "${totalQuantity(uiState.orders)} kg / " + orderViewModel.getTotalPrice().toSekFormat(uiState.orders[0].productList[0].productCurrency.uppercase()),
+						modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp).weight(12f),
 					)
-					Text(
-						text = "Total Price: " + orderViewModel.getTotalPrice().toSekFormat(uiState.orders[0].productList[0].productCurrency.uppercase()),
-						modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp),
-					)
-					IconButton (onClick = {
+					IconButton (
+						modifier = Modifier.weight(1f),onClick = {
 						createAndShareAllOrders(context = context, orders = orderViewModel.onlyNotArkivedOrders())
 					}){
 						Icon(
