@@ -90,7 +90,8 @@ fun AddNewProductScreen(
 						productName = productName.value,
 						productPrice = productPrice.value,
 						productCurrency = productCurrency.value,
-						productComment = productComment.value
+						productComment = productComment.value,
+						isPieces = false
 					)
 					
 					if (isUpdateProduct) {

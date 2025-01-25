@@ -91,4 +91,8 @@ class ProductViewModel(private val repository: Repository) : ViewModel() {
                 }
         }
     }
+    
+    fun getOnlyHavePriceProducts(): List<Product> {
+        return _uiState.value.products.filter { it.productPrice != "0" }
+    }
 }

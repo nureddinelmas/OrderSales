@@ -14,7 +14,7 @@ fun Double.toSekFormat(currency: String): String {
 	
 	val formatter = DecimalFormat("#,##0.00", symbols)
 	val formattedPrice = formatter.format(this)
-	return "$formattedPrice $currency"
+	return "$formattedPrice ${currency.uppercase()}"
 }
 
 fun totalQuantity(orders: List<Order>): Double {
