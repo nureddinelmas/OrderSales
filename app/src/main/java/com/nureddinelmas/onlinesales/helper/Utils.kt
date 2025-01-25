@@ -2,11 +2,18 @@ package com.nureddinelmas.onlinesales.helper
 
 import com.nureddinelmas.onlinesales.models.Order
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.Locale
+
 
 fun Double.toSekFormat(currency: String): String {
-	// Format the double value to two decimal places, and replace dot with a comma
-	val formatter = DecimalFormat("##0.00")
-	val formattedPrice = formatter.format(this).replace('.', ',') // replace dot with comma
+	val symbols = DecimalFormatSymbols(Locale("sv", "SE")).apply {
+		groupingSeparator = ' ' // Use a space for thousands separator
+		decimalSeparator = ',' // Use a comma for the decimal separator
+	}
+	
+	val formatter = DecimalFormat("#,##0.00", symbols)
+	val formattedPrice = formatter.format(this)
 	return "$formattedPrice $currency"
 }
 

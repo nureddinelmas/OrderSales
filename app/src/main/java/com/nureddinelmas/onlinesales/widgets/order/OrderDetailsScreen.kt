@@ -130,17 +130,19 @@ fun OrderDetailsScreen(
 					Text(
 						text = "Quantity",
 						modifier = Modifier
-							.weight(1f)
+							.weight(0.8f)
 							.padding(vertical = 4.dp),
 						textAlign = TextAlign.Center,
 						style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
 					)
 					Text(
-						text = "Price",
+						text = "    Price",
 						modifier = Modifier
-							.weight(1f)
+							.weight(1.5f)
 							.padding(vertical = 4.dp),
-						style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+						style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+						textAlign = TextAlign.Center
+						
 					)
 				}
 				LazyColumn(
@@ -164,15 +166,16 @@ fun OrderDetailsScreen(
 								Text(
 									text = product.productQuantity.toString() + " kg",
 									modifier = Modifier
-										.weight(1f)
+										.weight(0.7f)
 										.padding(vertical = 4.dp),
 									textAlign = TextAlign.Center
 								)
 								Text(
 									text = product.totalPrice().toSekFormat(product.productCurrency.uppercase()),
 									modifier = Modifier
-										.weight(1f)
-										.padding(vertical = 4.dp)
+										.weight(1.5f)
+										.padding(vertical = 4.dp),
+									textAlign = TextAlign.End
 								)
 								
 							}

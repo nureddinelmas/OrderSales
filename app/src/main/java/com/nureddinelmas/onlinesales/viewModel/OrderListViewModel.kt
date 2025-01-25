@@ -100,13 +100,13 @@ class OrderViewModel(private val repository: Repository) : ViewModel() {
     
     fun getTotalPrice(): Double {
         var total = 0.0
-        onlyNotArkivedOrders().forEach { order ->
+        onlyNotArchivedOrders().forEach { order ->
             total += order.totalPrice()
         }
         return total
     }
     
-    fun onlyNotArkivedOrders(): List<Order> {
+    fun onlyNotArchivedOrders(): List<Order> {
         return _uiState.value.orders.filter { !it.isArchived }
     }
 }

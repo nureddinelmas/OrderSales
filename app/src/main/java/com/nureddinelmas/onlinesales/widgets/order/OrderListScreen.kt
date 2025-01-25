@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -96,7 +97,7 @@ fun OrderListScreen(
 						.weight(16f)
 				) {
 					items(
-						items = orderViewModel.onlyNotArkivedOrders(),
+						items = orderViewModel.onlyNotArchivedOrders(),
 						key = { it.orderId!! }
 					) { order ->
 						var offsetX by remember { mutableFloatStateOf(0f) }
@@ -159,21 +160,35 @@ fun OrderListScreen(
 					modifier = Modifier
 						.fillMaxWidth()
 						.background(Color(0xFFF0F0F0))
-						.weight(1f).padding(horizontal = 4.dp),
+						.weight(1f)
+						.padding(horizontal = 4.dp),
 					horizontalArrangement = Arrangement.SpaceBetween,
 					verticalAlignment = Alignment.CenterVertically
 				) {
 					Text(
-						text = "Total : ${orderViewModel.onlyNotArkivedOrders().size} pcs. / " + "${totalQuantity(uiState.orders)} kg / " + orderViewModel.getTotalPrice().toSekFormat(uiState.orders[0].productList[0].productCurrency.uppercase()),
-						modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp).weight(12f),
+						text = "Total : ${orderViewModel.onlyNotArchivedOrders().size} pcs. / " + "${
+							totalQuantity(
+								uiState.orders
+							)
+						} kg / " + orderViewModel.getTotalPrice()
+							.toSekFormat(uiState.orders[0].productList[0].productCurrency.uppercase()),
+						modifier = Modifier
+							.padding(horizontal = 12.dp, vertical = 4.dp)
+							.weight(12f),
 					)
-					IconButton (
-						modifier = Modifier.weight(1f),onClick = {
-						createAndShareAllOrders(context = context, orders = orderViewModel.onlyNotArkivedOrders())
-					}){
+					IconButton(
+						modifier = Modifier
+							.weight(1f)
+							.padding(end = 10.dp), onClick = {
+							createAndShareAllOrders(
+								context = context,
+								orders = orderViewModel.onlyNotArchivedOrders()
+							)
+						}) {
 						Icon(
 							imageVector = Icons.Default.Share,
-							contentDescription = "Share Order"
+							contentDescription = "Share Order",
+							modifier = Modifier.size(20.dp)
 						)
 					}
 				}
@@ -281,11 +296,8 @@ fun OrderItem(order: Order, onClick: () -> Unit, onUpdateClick: () -> Unit, cust
 				)
 				
 				Text(
-					text = String.format(
-						"%.2f  %s",
-						order.totalPrice(),
-						order.productList[0].productCurrency.uppercase()
-					),
+					text = order.totalPrice()
+						.toSekFormat(order.productList[0].productCurrency.uppercase()),
 					modifier = Modifier
 						.padding(vertical = 1.dp)
 						.weight(1f),
