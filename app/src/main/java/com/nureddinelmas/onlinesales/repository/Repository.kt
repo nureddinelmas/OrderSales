@@ -124,7 +124,7 @@ class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
 				Log.d("!!!", "DocumentSnapshot added with ID: ${documentReference.id}")
 				db.collection(CONSTANTS_FIREBASE_COLLECTION_CUSTOMERS)
 					.document(documentReference.id)
-					.update("customer Id", documentReference.id)
+					.update("customerId", documentReference.id)
 			}
 			.addOnFailureListener { e ->
 				Log.w("!!!", "Error adding document", e)
