@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_ORDER_LIST
+import com.nureddinelmas.onlinesales.models.Customer
 import com.nureddinelmas.onlinesales.models.Order
 import com.nureddinelmas.onlinesales.models.OrderProcess
 import com.nureddinelmas.onlinesales.models.Product
@@ -45,7 +46,7 @@ fun AddOrderScreen(
 	var showProductsDialog by remember { mutableStateOf(false) }
 	var showCustomerDialog by remember { mutableStateOf(false) }
 	var selectedProducts = remember { mutableStateListOf<Product>() }
-	val selectedCustomerId = remember { mutableStateOf("") }
+	val selectedCustomer = remember { mutableStateOf(Customer()) }
 	Scaffold { padding ->
 		if (!showProductsDialog) Column(modifier = Modifier.padding(padding)) {
 			Card(
@@ -69,7 +70,7 @@ fun AddOrderScreen(
 						horizontalArrangement = Arrangement.SpaceBetween
 					) {
 						Text(
-							text = customerViewModel.getCustomerById(selectedCustomerId.value)?.customerName
+							text = selectedCustomer.value.customerName
 								?: "",
 							modifier = Modifier.weight(1f)
 						)
@@ -138,7 +139,7 @@ fun AddOrderScreen(
 					onClick = {
 						val order =
 							Order(
-								customerId = selectedCustomerId.value,
+								customer = selectedCustomer.value,
 								productList = selectedProducts,
 								orderDate = System.currentTimeMillis(),
 								process = OrderProcess.ORDERED
@@ -167,7 +168,7 @@ fun AddOrderScreen(
 			CustomerDialog(
 				viewModel = customerViewModel,
 				onDismiss = { showCustomerDialog = false },
-				onSelectedCustomerId = { selectedCustomerId.value = it }
+				onSelectedCustomer = { selectedCustomer.value = it }
 			)
 		}
 	}

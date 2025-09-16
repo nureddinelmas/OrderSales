@@ -26,7 +26,7 @@ import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 fun CustomerDialog(
 	viewModel: CustomerViewModel,
 	onDismiss: () -> Unit,
-	onSelectedCustomerId: (selectedCustomerId: String) -> Unit,
+	onSelectedCustomer: (selectedCustomer: Customer) -> Unit,
 ) {
 	val customer by viewModel.uiState.collectAsState()
 	Dialog(onDismissRequest = onDismiss) {
@@ -46,7 +46,7 @@ fun CustomerDialog(
 							Text(text = customer.customerName ?: "")
 							Button(
 								onClick = {
-									onSelectedCustomerId(customer.customerId!!)
+									onSelectedCustomer(customer)
 									onDismiss()
 								},
 								modifier = Modifier

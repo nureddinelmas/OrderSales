@@ -28,8 +28,6 @@ interface Repository {
 	suspend fun updateOrder(order: Order): Result<Unit>
 	suspend fun updateCustomer(customer: Customer): Result<Unit>
 	suspend fun updateProduct(product: Product): Result<Unit>
-	
-	suspend fun getCustomerById(customerId: String): Result<Customer>
 }
 
 class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
@@ -42,11 +40,7 @@ class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
 			.documents
 			.mapNotNull { it.toObject(Order::class.java)?.copy(orderId = it.id) }
 			.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) {
-				runBlocking {
-					getCustomerById(
-						it.customerId ?: ""
-					).getOrNull()?.customerName ?: ""
-				}
+				it.customer?.customerId ?: ""
 			})
 	}
 	
@@ -82,14 +76,14 @@ class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
 			})
 	}
 	
-	override suspend fun getCustomerById(customerId: String): Result<Customer> = runCatching {
-		db.collection(CONSTANTS_FIREBASE_COLLECTION_CUSTOMERS)
-			.document(customerId)
-			.get()
-			.await()
-			.toObject(Customer::class.java)
-			?: throw Exception("Customer not found")
-	}
+//	suspend fun getCustomerById(customerId: String): Result<Customer> = runCatching {
+//		db.collection(CONSTANTS_FIREBASE_COLLECTION_CUSTOMERS)
+//			.document(customerId)
+//			.get()
+//			.await()
+//			.toObject(Customer::class.java)
+//			?: throw Exception("Customer not found")
+//	}
 	
 	override suspend fun addOrder(order: Order): Result<Unit> = runCatching {
 		db.collection(CONSTANTS_FIREBASE_COLLECTION_ORDERS)
@@ -153,6 +147,20 @@ class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
 					"!!!",
 					"DocumentSnapshot updated with ID: ${customer.customerId}"
 				)
+				db.collection(CONSTANTS_FIREBASE_COLLECTION_ORDERS)
+					.whereEqualTo("customer.customerId", customer.customerId)
+					.get()
+					.addOnSuccessListener { querySnapshot ->
+						for (document in querySnapshot.documents) {
+							val order = document.toObject(Order::class.java)
+							if (order != null) {
+								val updatedOrder = order.copy(customer = customer)
+								runBlocking {
+									updateOrder(updatedOrder)
+								}
+							}
+						}
+					}
 			}
 			.addOnFailureListener { e -> Log.w("!!!", "Error updating document", e) }
 	}

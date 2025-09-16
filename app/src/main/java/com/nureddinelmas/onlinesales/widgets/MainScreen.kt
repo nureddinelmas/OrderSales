@@ -80,7 +80,7 @@ fun MainScreen(
 			) {
 				composable(NAVIGATION_SCREEN_ORDER_LIST) {
 					currentTitle.value = "Order List"
-					OrderListScreen(orderViewModel, customerViewModel, navController)
+					OrderListScreen(orderViewModel, navController)
 					shouldShowTopBar.value = true
 				}
 				composable("add") {

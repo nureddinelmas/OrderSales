@@ -22,9 +22,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -55,11 +58,11 @@ import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
 import java.nio.charset.StandardCharsets
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("DefaultLocale")
 @Composable
 fun OrderListScreen(
 	orderViewModel: OrderViewModel,
-	customerViewModel: CustomerViewModel,
 	navController: NavController
 ) {
 	val uiState by orderViewModel.uiState.collectAsState()
@@ -90,11 +93,17 @@ fun OrderListScreen(
 		
 		uiState.orders.isNotEmpty() -> {
 			Column {
+				PullToRefreshBox(
+					isRefreshing = uiState.isRefreshState,
+					onRefresh = { orderViewModel.refreshOrders() },
+					state = PullToRefreshState(),
+					modifier = Modifier.weight(16f)
+				) {
 				LazyColumn(
 					modifier = Modifier
 						.fillMaxWidth()
 						.background(Color(0xFFF0F0F0))
-						.weight(16f)
+						
 				) {
 					items(
 						items = orderViewModel.onlyNotArchivedOrders(),
@@ -150,11 +159,12 @@ fun OrderListScreen(
 									navController.navigate("details/${encodedOrderJson}")
 									
 								},
-								customerName = customerViewModel.getCustomerById(order.customerId!!)?.customerName
+								customerName = order.customer?.customerName
 									?: ""
 							)
 						}
 					}
+				}
 				}
 				Row(
 					modifier = Modifier
@@ -165,8 +175,9 @@ fun OrderListScreen(
 					horizontalArrangement = Arrangement.SpaceBetween,
 					verticalAlignment = Alignment.CenterVertically
 				) {
+					val orderText  = if(orderViewModel.onlyNotArchivedOrders().size >1 ) "orders /" else "order /"
 					Text(
-						text = "Total : ${orderViewModel.onlyNotArchivedOrders().size} pcs. / " + "${
+						text = "Total : ${orderViewModel.onlyNotArchivedOrders().size} $orderText " + "${
 							totalQuantity(
 								uiState.orders
 							)

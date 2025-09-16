@@ -62,7 +62,7 @@ fun OrderDetailsScreen(
 	
 	var currentOrder by remember { mutableStateOf(order) }
 	val context = LocalContext.current
-	val currentCustomer by remember { mutableStateOf(customerViewModel.getCustomerById(order.customerId!!)) }
+	val currentCustomer by remember { mutableStateOf(order.customer) }
 	
 	Column {
 		TopAppBar(

@@ -1,6 +1,7 @@
 package com.nureddinelmas.onlinesales.viewModel
 
 import android.util.Log
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nureddinelmas.onlinesales.models.Order
@@ -13,7 +14,8 @@ import kotlinx.coroutines.launch
 data class OrderUiState(
     val isLoading: Boolean = false,
     val orders: List<Order> = emptyList(),
-    val error: String? = null
+    val error: String? = null,
+    val isRefreshState: Boolean = false
 )
 
 class OrderViewModel(private val repository: Repository) : ViewModel() {
@@ -90,7 +92,7 @@ class OrderViewModel(private val repository: Repository) : ViewModel() {
     
     fun checkCustomerExistInOrders(customerId: String): Boolean = run {
         _uiState.value.orders.forEach { order ->
-            if (order.customerId == customerId) {
+            if (order.customer?.customerId == customerId) {
                 Log.d("!!!", "Customer exist in orders")
                 return@run true
             }
@@ -108,5 +110,9 @@ class OrderViewModel(private val repository: Repository) : ViewModel() {
     
     fun onlyNotArchivedOrders(): List<Order> {
         return _uiState.value.orders.filter { !it.isArchived }
+    }
+    
+    fun refreshOrders() {
+        loadOrders()
     }
 }

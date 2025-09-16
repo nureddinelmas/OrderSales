@@ -9,7 +9,7 @@ import java.util.UUID
 data class Order(
 	var orderId: String? = UUID.randomUUID().toString(),
 	var orderDate: Long = Date().time,
-	val customerId: String? = "",
+	val customer: Customer? = null,
 	var productList: List<Product> = listOf(),
 	var shipping: Double = 0.0,
 	var process: OrderProcess? = OrderProcess.ORDERED,
