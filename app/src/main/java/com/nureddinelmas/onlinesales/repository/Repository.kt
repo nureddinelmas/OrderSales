@@ -31,8 +31,6 @@ interface Repository {
 }
 
 class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
-	
-	
 	override suspend fun getOrders(): Result<List<Order>> = runCatching {
 		db.collection(CONSTANTS_FIREBASE_COLLECTION_ORDERS)
 			.get()
@@ -75,15 +73,6 @@ class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
 				) ?: ""
 			})
 	}
-	
-//	suspend fun getCustomerById(customerId: String): Result<Customer> = runCatching {
-//		db.collection(CONSTANTS_FIREBASE_COLLECTION_CUSTOMERS)
-//			.document(customerId)
-//			.get()
-//			.await()
-//			.toObject(Customer::class.java)
-//			?: throw Exception("Customer not found")
-//	}
 	
 	override suspend fun addOrder(order: Order): Result<Unit> = runCatching {
 		db.collection(CONSTANTS_FIREBASE_COLLECTION_ORDERS)

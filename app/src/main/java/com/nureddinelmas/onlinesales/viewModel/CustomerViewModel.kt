@@ -7,6 +7,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nureddinelmas.onlinesales.repository.Repository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +20,10 @@ data class CustomerUiState(
 	val error: String? = null
 )
 
-class CustomerViewModel(private val repository: Repository) : ViewModel() {
+@HiltViewModel
+class CustomerViewModel @Inject constructor(
+	private val repository: Repository
+): ViewModel() {
 	private val _uiState = MutableStateFlow(CustomerUiState())
 	val uiState: StateFlow<CustomerUiState> = _uiState.asStateFlow()
 	

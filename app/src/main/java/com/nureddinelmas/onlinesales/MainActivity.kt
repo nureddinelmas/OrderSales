@@ -10,11 +10,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.nureddinelmas.onlinesales.helper.CustomerViewModelFactory
-import com.nureddinelmas.onlinesales.helper.OrderViewModelFactory
-import com.nureddinelmas.onlinesales.helper.ProductViewModelFactory
-import com.nureddinelmas.onlinesales.repository.RepositoryImpl
 import com.nureddinelmas.onlinesales.ui.theme.OnlineSalesTheme
 import com.nureddinelmas.onlinesales.viewModel.AuthViewModel
 import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
@@ -22,16 +17,13 @@ import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
 import com.nureddinelmas.onlinesales.viewModel.ProductViewModel
 import com.nureddinelmas.onlinesales.widgets.MainScreen
 import com.nureddinelmas.onlinesales.widgets.auth.SignInScreen
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-	private val repository by lazy { RepositoryImpl(FirebaseFirestore.getInstance()) }
-	private val orderViewModelFactory by lazy { OrderViewModelFactory(repository) }
-	private val productViewModelFactory by lazy { ProductViewModelFactory(repository) }
-	private val orderViewModel: OrderViewModel by viewModels { orderViewModelFactory }
-	private val productViewModel: ProductViewModel by viewModels { productViewModelFactory }
-	private val customerViewModelFactory by lazy { CustomerViewModelFactory(repository) }
-	private val customerViewModel: CustomerViewModel by viewModels { customerViewModelFactory }
+	private val orderViewModel: OrderViewModel by viewModels()
+	private val productViewModel: ProductViewModel by viewModels()
+	private val customerViewModel: CustomerViewModel by viewModels()
 	
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)

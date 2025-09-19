@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -70,6 +71,7 @@ fun OrderListScreen(
 	var showDialogArchive by remember { mutableStateOf(false) }
 	var currentOrder by remember { mutableStateOf(Order()) }
 	val context = LocalContext.current
+	
 	when {
 		uiState.isLoading -> {
 			Box(

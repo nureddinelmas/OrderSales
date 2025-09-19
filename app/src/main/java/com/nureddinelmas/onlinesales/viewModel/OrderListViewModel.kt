@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nureddinelmas.onlinesales.models.Order
 import com.nureddinelmas.onlinesales.repository.Repository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +20,10 @@ data class OrderUiState(
     val isRefreshState: Boolean = false
 )
 
-class OrderViewModel(private val repository: Repository) : ViewModel() {
+@HiltViewModel
+class OrderViewModel @Inject constructor(
+    private val repository: Repository
+): ViewModel() {
     private val _uiState = MutableStateFlow(OrderUiState())
     val uiState: StateFlow<OrderUiState> = _uiState.asStateFlow()
 
