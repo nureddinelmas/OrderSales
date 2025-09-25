@@ -208,7 +208,7 @@ fun OrderDetailsScreen(
 					)
 				}
 				Text(
-					text = "Shipping: ${currentOrder.shipping.toSekFormat(currentOrder.productList[0].productCurrency.uppercase())}",
+					text = if(currentOrder.productList.size > 1) "Shipping: ${currentOrder.shipping.toSekFormat(currentOrder.productList[0].productCurrency.uppercase())}" else "Shipping: 0 SEK}",
 					style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
 					textAlign = TextAlign.Center
 				)
@@ -221,7 +221,7 @@ fun OrderDetailsScreen(
 				horizontalArrangement = Arrangement.End
 			) {
 				Text(
-					text = "Total Price: ${currentOrder.totalPrice().toSekFormat(currentOrder.productList[0].productCurrency.uppercase())}",
+					text = if(currentOrder.productList.size > 1) "Total Price: ${currentOrder.totalPrice().toSekFormat(currentOrder.productList[0].productCurrency.uppercase())}" else "Total Price : 0 SEK",
 					style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
 					textAlign = TextAlign.Center
 				)

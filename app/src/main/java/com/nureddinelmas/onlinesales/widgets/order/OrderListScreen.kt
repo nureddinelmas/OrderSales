@@ -184,7 +184,7 @@ fun OrderListScreen(
 								uiState.orders
 							)
 						} kg / " + orderViewModel.getTotalPrice()
-							.toSekFormat(uiState.orders[0].productList[0].productCurrency.uppercase()),
+							.toSekFormat("SEK"),
 						modifier = Modifier
 							.padding(horizontal = 12.dp, vertical = 4.dp)
 							.weight(12f),

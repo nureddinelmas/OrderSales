@@ -8,7 +8,9 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import androidx.core.content.FileProvider
+import androidx.core.graphics.scale
 import com.google.type.DateTime
+import com.nureddinelmas.onlinesales.R
 import com.nureddinelmas.onlinesales.helper.toSekFormat
 import com.nureddinelmas.onlinesales.models.Customer
 import com.nureddinelmas.onlinesales.models.Order
@@ -38,9 +40,13 @@ fun createAndShareAllProductsList(context: Context, productViewModel: ProductVie
 		var canvas: Canvas = page.canvas
 		val paint = Paint()
 		paint.textSize = 12f
+		// Draw a custom logo at the top of the document
+		val logoBitmap = android.graphics.BitmapFactory.decodeResource(context.resources, R.drawable.logo) // Replace with your logo resource
+		canvas.drawBitmap(logoBitmap.scale(300, 70), 0f, 10f, null)
 		
 		// Set the starting position
 		var yPosition = 20f
+		yPosition += 90f
 		var index = 0
 		var totalQuantity = 0.0
 		// Draw order details

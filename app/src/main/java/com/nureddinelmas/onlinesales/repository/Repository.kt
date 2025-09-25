@@ -37,8 +37,8 @@ class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
 			.await()
 			.documents
 			.mapNotNull { it.toObject(Order::class.java)?.copy(orderId = it.id) }
-			.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) {
-				it.customer?.customerId ?: ""
+			.sortedWith(compareByDescending (String.CASE_INSENSITIVE_ORDER) {
+				it.orderDate.toString()
 			})
 	}
 	
@@ -115,6 +115,16 @@ class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
 	}
 	
 	override suspend fun updateOrder(order: Order): Result<Unit> = runCatching {
+		
+		if (order.productList.isEmpty()) {
+			db.collection(CONSTANTS_FIREBASE_COLLECTION_ORDERS)
+				.document(order.orderId!!)
+				.delete()
+				.addOnSuccessListener {
+					Log.d("!!!", "Order deleted due to empty products: ${order.orderId}")
+				}
+				.addOnFailureListener { e -> Log.w("!!!", "Error deleting order", e) }
+		} else {
 		db.collection(CONSTANTS_FIREBASE_COLLECTION_ORDERS)
 			.document(order.orderId!!)
 			.set(order)
@@ -125,6 +135,7 @@ class RepositoryImpl(private val db: FirebaseFirestore) : Repository {
 				)
 			}
 			.addOnFailureListener { e -> Log.w("!!!", "Error adding document", e) }
+		}
 	}
 	
 	override suspend fun updateCustomer(customer: Customer): Result<Unit> = runCatching {

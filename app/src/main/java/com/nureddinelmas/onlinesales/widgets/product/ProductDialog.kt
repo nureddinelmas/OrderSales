@@ -65,7 +65,7 @@ fun ProductDialog(
 					product = product,
 					initialQuantity = initialQuantity,
 					onQuantityChange = { quantity ->
-						if (quantity > -1) {
+						if (quantity > 0) {
 							val updatedProduct = product.copy(productQuantity = quantity)
 							if (existingProduct != null) {
 								tempSelectedProducts[tempSelectedProducts.indexOf(existingProduct)] =
@@ -74,7 +74,7 @@ fun ProductDialog(
 								tempSelectedProducts.add(updatedProduct)
 							}
 						} else {
-							tempSelectedProducts.remove(product)
+							tempSelectedProducts.removeAll { it.productId == product.productId }
 						}
 					}
 				)
