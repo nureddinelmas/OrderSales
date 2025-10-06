@@ -54,12 +54,21 @@ fun ShippingAndProcessDialog(
 		) {
 			Column {
 				OutlinedTextField(
-					keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-					value = shippingCost.toInt().toString(),
+					value = if (shippingCost == 0.0) "" else shippingCost.toString().replace('.', ','),
 					onValueChange = { newValue ->
-						shippingCost = newValue.toDoubleOrNull() ?: 0.0
+						if (newValue.isBlank()) {
+							shippingCost = 0.0
+							return@OutlinedTextField
+						}
+						val normalized = newValue.replace(',', '.')
+						val parsed = normalized.toDoubleOrNull()
+						
+						if (parsed != null) {
+							shippingCost = parsed
+						}
 					},
-					label = { Text("Shipping Cost") },
+					label = { Text("Shipping Cost (kr)") },
+					keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
 					modifier = Modifier.padding(16.dp)
 				)
 				Box(
