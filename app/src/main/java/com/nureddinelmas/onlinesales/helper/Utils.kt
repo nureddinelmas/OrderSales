@@ -24,3 +24,13 @@ fun totalQuantity(orders: List<Order>): Double {
 	}
 	return totalQuantity
 }
+
+fun totalQuantityWithoutArchive(orders: List<Order>): Double {
+	var totalQuantity = 0.0
+	orders.forEach {
+		if (!it.isArchived) {
+			totalQuantity += it.totalQuantity()
+		}
+	}
+	return totalQuantity
+}

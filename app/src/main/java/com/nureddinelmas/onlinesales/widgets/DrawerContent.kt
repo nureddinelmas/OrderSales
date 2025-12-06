@@ -88,6 +88,14 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState) {
 			Icons.Default.Star,
 			"customerList"
 		)
+		NavigationBarItem(
+			scope,
+			drawerState,
+			navController,
+			"Archive List",
+			Icons.Default.Star,
+			"archiveList"
+		)
 		HorizontalDivider(modifier = Modifier.padding(8.dp), thickness = 2.dp)
 		Text(
 			"Add new",

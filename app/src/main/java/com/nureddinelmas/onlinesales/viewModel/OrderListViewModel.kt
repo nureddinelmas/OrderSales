@@ -112,10 +112,22 @@ class OrderViewModel @Inject constructor(
         }
         return total
     }
+	
+	fun getTotalPriceOnlyArchive(): Double {
+		var total = 0.0
+		archivedOrders().forEach { order ->
+			total += order.totalPrice()
+		}
+		return total
+	}
     
     fun onlyNotArchivedOrders(): List<Order> {
         return _uiState.value.orders.filter { !it.isArchived }
     }
+	
+	fun archivedOrders(): List<Order> {
+		return _uiState.value.orders.filter { it.isArchived }
+	}
     
     fun refreshOrders() {
         loadOrders()

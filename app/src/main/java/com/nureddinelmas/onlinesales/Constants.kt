@@ -17,5 +17,6 @@ const val NAVIGATION_SCREEN_MAIN_SCREEN = "MainScreen"
 const val NAVIGATION_SCREEN_SIGN_IN = "SignIn"
 const val NAVIGATION_SCREEN_PRODUCT_LIST = "ProductList"
 const val NAVIGATION_SCREEN_CUSTOMER_LIST = "CustomerList"
+const val NAVIGATION_SCREEN_ARCHIVE_LIST = "ArchiveList"
 
 const val NAVIGATION_SCREEN_UPDATE_ORDER = "update/{order}"

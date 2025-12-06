@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_ARCHIVE_LIST
 import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_ORDER_LIST
 import com.nureddinelmas.onlinesales.NAVIGATION_SCREEN_UPDATE_ORDER
 import com.nureddinelmas.onlinesales.models.Customer
@@ -29,6 +30,7 @@ import com.nureddinelmas.onlinesales.models.Product
 import com.nureddinelmas.onlinesales.viewModel.CustomerViewModel
 import com.nureddinelmas.onlinesales.viewModel.OrderViewModel
 import com.nureddinelmas.onlinesales.viewModel.ProductViewModel
+import com.nureddinelmas.onlinesales.widgets.archive.ArchiveListScreen
 import com.nureddinelmas.onlinesales.widgets.customer.AddNewCustomerScreen
 import com.nureddinelmas.onlinesales.widgets.customer.CustomerListScreen
 import com.nureddinelmas.onlinesales.widgets.order.AddOrderScreen
@@ -81,6 +83,11 @@ fun MainScreen(
 				composable(NAVIGATION_SCREEN_ORDER_LIST) {
 					currentTitle.value = "Order List"
 					OrderListScreen(orderViewModel, navController)
+					shouldShowTopBar.value = true
+				}
+				composable(NAVIGATION_SCREEN_ARCHIVE_LIST) {
+					currentTitle.value = "Archive List"
+					ArchiveListScreen(orderViewModel, navController)
 					shouldShowTopBar.value = true
 				}
 				composable("add") {

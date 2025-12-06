@@ -1,4 +1,4 @@
-package com.nureddinelmas.onlinesales.widgets.order
+package com.nureddinelmas.onlinesales.widgets.archive
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -63,13 +63,12 @@ import java.nio.charset.StandardCharsets
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("DefaultLocale")
 @Composable
-fun OrderListScreen(
+fun ArchiveListScreen(
 	orderViewModel: OrderViewModel,
 	navController: NavController
 ) {
 	val uiState by orderViewModel.uiState.collectAsState()
 	var showDialogDelete by remember { mutableStateOf(false) }
-	var showDialogArchive by remember { mutableStateOf(false) }
 	var currentOrder by remember { mutableStateOf(Order()) }
 	val context = LocalContext.current
 	
@@ -102,72 +101,69 @@ fun OrderListScreen(
 					state = PullToRefreshState(),
 					modifier = Modifier.weight(16f)
 				) {
-				LazyColumn(
-					modifier = Modifier
-						.fillMaxWidth()
-						.background(Color(0xFFF0F0F0))
-						
-				) {
-					items(
-						items = orderViewModel.onlyNotArchivedOrders(),
-						key = { it.orderId!! }
-					) { order ->
-						var offsetX by remember { mutableFloatStateOf(0f) }
-						val maxOffset = 900f
-						Box(
-							modifier = Modifier
-								.fillMaxWidth()
-								.offset { IntOffset(offsetX.toInt(), 0) }
-								.background(if (offsetX < -100f) Color.Red else if (offsetX > 100f) Color.Green else Color.White)
-								.shadow(4.dp)
-								.pointerInput(Unit) {
-									detectHorizontalDragGestures(
-										onDragEnd = {
-											if (offsetX < -maxOffset / 2) {
-												currentOrder = order
-												showDialogDelete = true
-											} else if (offsetX > maxOffset / 2) {
-												currentOrder = order
-												showDialogArchive = true
-											}
-											offsetX = 0f
-										},
-										onHorizontalDrag = { _, dragAmount ->
-											offsetX = (offsetX + dragAmount).coerceIn(
-												-maxOffset,
-												maxOffset
-											)
-										},
-									)
-								}
-						) {
-							if (order.totalQuantity() != 0.0) OrderItem(
-								order,
-								onUpdateClick = {
-									val gson = Gson()
-									val orderJson = gson.toJson(order)
-									val encodedOrderJson = java.net.URLEncoder.encode(
-										orderJson,
-										StandardCharsets.UTF_8.toString()
-									)
-									navController.navigate("update/${encodedOrderJson}")
-								},
-								onClick = {
-									val gson = Gson()
-									val orderJson = gson.toJson(order)
-									val encodedOrderJson = java.net.URLEncoder.encode(
-										orderJson,
-										StandardCharsets.UTF_8.toString()
-									)
-									navController.navigate("details/${encodedOrderJson}")
-									
-								},
-								customerName = order.customer?.customerName
-									?: ""
-							)
+					LazyColumn(
+						modifier = Modifier
+							.fillMaxWidth()
+							.background(Color(0xFFF0F0F0))
+					
+					) {
+						items(
+							items = orderViewModel.archivedOrders(),
+							key = { it.orderId!! }
+						) { order ->
+							var offsetX by remember { mutableFloatStateOf(0f) }
+							val maxOffset = 900f
+							Box(
+								modifier = Modifier
+									.fillMaxWidth()
+									.offset { IntOffset(offsetX.toInt(), 0) }
+									.background(if (offsetX < -100f) Color.Red else if (offsetX > 100f) Color.Green else Color.White)
+									.shadow(4.dp)
+									.pointerInput(Unit) {
+										detectHorizontalDragGestures(
+											onDragEnd = {
+												if (offsetX < -maxOffset / 2) {
+													currentOrder = order
+													showDialogDelete = true
+												}
+												offsetX = 0f
+											},
+											onHorizontalDrag = { _, dragAmount ->
+												offsetX = (offsetX + dragAmount).coerceIn(
+													-maxOffset,
+													maxOffset
+												)
+											},
+										)
+									}
+							) {
+								if (order.totalQuantity() != 0.0) OrderItem(
+									order,
+									onUpdateClick = {
+										val gson = Gson()
+										val orderJson = gson.toJson(order)
+										val encodedOrderJson = java.net.URLEncoder.encode(
+											orderJson,
+											StandardCharsets.UTF_8.toString()
+										)
+										navController.navigate("update/${encodedOrderJson}")
+									},
+									onClick = {
+										val gson = Gson()
+										val orderJson = gson.toJson(order)
+										val encodedOrderJson = java.net.URLEncoder.encode(
+											orderJson,
+											StandardCharsets.UTF_8.toString()
+										)
+										navController.navigate("details/${encodedOrderJson}")
+										
+									},
+									customerName = order.customer?.customerName
+										?: ""
+								)
+							}
 						}
 					}
-				}
 				}
 				Row(
 					modifier = Modifier
@@ -178,13 +174,13 @@ fun OrderListScreen(
 					horizontalArrangement = Arrangement.SpaceBetween,
 					verticalAlignment = Alignment.CenterVertically
 				) {
-					val orderText  = if(orderViewModel.onlyNotArchivedOrders().size >1 ) "orders /" else "order /"
+					val orderText  = if(orderViewModel.archivedOrders().size >1 ) "orders /" else "order /"
 					Text(
-						text = "Total : ${orderViewModel.onlyNotArchivedOrders().size} $orderText " + "${
-							totalQuantityWithoutArchive(
+						text = "Total : ${orderViewModel.archivedOrders().size} $orderText " + "${
+							totalQuantity(
 								uiState.orders
 							)
-						} kg / " + orderViewModel.getTotalPrice()
+						} kg / " + orderViewModel.getTotalPriceOnlyArchive()
 							.toSekFormat("SEK"),
 						modifier = Modifier
 							.padding(horizontal = 12.dp, vertical = 4.dp)
@@ -196,7 +192,7 @@ fun OrderListScreen(
 							.padding(end = 10.dp), onClick = {
 							createAndShareAllOrders(
 								context = context,
-								orders = orderViewModel.onlyNotArchivedOrders()
+								orders = orderViewModel.archivedOrders()
 							)
 						}) {
 						Icon(
@@ -229,17 +225,6 @@ fun OrderListScreen(
 			title = "Delete Order",
 			body = "Are you sure you want to delete this order?",
 			onYesButtonClick = { orderViewModel.deleteOrder(currentOrder.orderId!!) }
-		)
-	}
-	
-	if (showDialogArchive) {
-		AlertDialogCustom(
-			onAlertDialog = { showDialogArchive = false },
-			orderViewModel = orderViewModel,
-			currentOrder = currentOrder,
-			title = "Archive Order",
-			body = "Are you sure you want to archive this order?",
-			onYesButtonClick = { orderViewModel.updateOrder(currentOrder.copy(isArchived = true)) }
 		)
 	}
 }

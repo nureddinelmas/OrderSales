@@ -1,6 +1,7 @@
 package com.nureddinelmas.onlinesales
 
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,6 +26,7 @@ class MainActivity : ComponentActivity() {
 	private val productViewModel: ProductViewModel by viewModels()
 	private val customerViewModel: CustomerViewModel by viewModels()
 	
+	@SuppressLint("ViewModelConstructorInComposable")
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		val firebaseAuth = FirebaseAuth.getInstance()
